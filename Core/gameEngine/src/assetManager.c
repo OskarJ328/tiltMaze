@@ -14,5 +14,5 @@ font_t *assetManager_getFont(FontID id){
 }
 
 map_t *assetManager_getMap(){
-    return &map;
+    return map;
 }

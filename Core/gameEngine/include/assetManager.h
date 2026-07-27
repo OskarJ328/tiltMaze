@@ -26,16 +26,6 @@ typedef struct {
 }sprite_t;
 
 typedef struct {
-    uint8_t width_tiles;
-    uint8_t height_tiles;
-
-    uint8_t marginX_pxl = 0;
-    uint8_t marginY_pxl = 0;
-
-    const uint8_t *tileIds;
-}map_t;
-
-typedef struct {
     const sprite_t *sprites;
     uint16_t spritesCount;
 
