@@ -1,5 +1,15 @@
 #pragma once
 
-#include "assetManager.h"
+#include "sprite.h"
 
-map_t map_init();
+typedef enum {
+    BASIC,
+    SCI_FI,
+    GOTH
+}MapID;
+
+typedef struct {
+    Size size_tiles;
+    uint8_t tileSize_pixels;
+    const SpriteID *tileIds;
+}map_t;

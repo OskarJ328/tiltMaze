@@ -39,7 +39,8 @@ add_executable(${CMAKE_PROJECT_NAME}
     Core/gameEngine/src/basicTypes.c
     Core/gameEngine/include/assetManager.h
     Core/gameEngine/src/assetManager.c
-    Core/gameEngine/src/map.c)
+    Core/gameEngine/src/map.c
+)
 
 # Add STM32CubeMX generated sources
 add_subdirectory(cmake/stm32cubemx)
