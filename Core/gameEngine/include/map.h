@@ -1,6 +1,6 @@
 #pragma once
 
-#include "sprite.h"
+#include "tile.h"
 
 typedef enum {
     BASIC,
@@ -11,5 +11,5 @@ typedef enum {
 typedef struct {
     Size size_tiles;
     uint8_t tileSize_pixels;
-    const SpriteID *tileIds;
+    const TileID *tileIds;
 }map_t;

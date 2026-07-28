@@ -1,12 +1,10 @@
 #pragma once
 
-#include "basicTypes.h"
 #include "sprite.h"
 
 typedef enum {
-    FLOOR,
-    HOLE,
-    END
+    WALL,
+    FLOOR
 }TileID;
 
 typedef struct {

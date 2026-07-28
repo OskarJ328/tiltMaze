@@ -3,11 +3,13 @@
 
 
 typedef enum{
+    SPRITE_WALL,  
+    SPRITE_FLOOR,
+
     SPRITE_PLAYER,
-    SPRITE_WALL,
     SPRITE_BALL,
-    SPRITE_GOAL,
-    SPRITE_FLOOR
+    SPRITE_GOAL
+    
 } SpriteID;
 
 typedef struct {

@@ -23,8 +23,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "ili9341.h"
-#include "stm32l4xx_hal_gpio.h"
+#include "renderer.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -45,6 +44,20 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
+assetManager_t assets;
+renderer_t renderer;
+ili9341_t ili = {
+  .csPort = CS_GPIO_Port,
+  .csPin = CS_Pin,
+  .resPort = RESET_GPIO_Port,
+  .resPin = RESET_Pin,
+  .dcPort = DC_GPIO_Port,
+  .dcPin = DC_Pin,
+  .spiHandle = &hspi1,
+  .height = ILI9341_HEIGHT,
+  .width = ILI9341_WIDTH,
+  .colorFormat = BGR
+};
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -55,6 +68,7 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+
 
 /* USER CODE END 0 */
 
@@ -72,7 +86,7 @@ int main(void)
   /* MCU Configuration--------------------------------------------------------*/
 
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-  HAL_Init();
+   HAL_Init();
 
   /* USER CODE BEGIN Init */
 
@@ -89,7 +103,10 @@ int main(void)
   MX_GPIO_Init();
   MX_SPI1_Init();
   /* USER CODE BEGIN 2 */
-
+  assetManager_init(&assets);
+  const map_t *map = assetManager_getMap(&assets, 0);
+  renderer_init(&renderer, &ili, &assets, map, ILI9341_WHITE);
+  renderer_drawMap(&renderer, map);
   /* USER CODE END 2 */
 
   /* Infinite loop */

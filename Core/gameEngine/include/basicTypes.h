@@ -15,9 +15,8 @@ typedef struct {
 } vector2_t;
 
 typedef struct{
-    uint16_t x;
-    uint16_t y;
-    Size size;
+    vector2_t   position;
+    Size        size;
 } rectangle_t;
 
 typedef enum {
@@ -27,10 +26,6 @@ typedef enum {
     DIR_RIGHT
 } directions_t;
 
-typedef enum{
-    FONT_MENU,
-    FONT_PAUSE,
-    FONT_GAME
-} FontID;
+
 
 

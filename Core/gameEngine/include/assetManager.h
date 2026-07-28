@@ -1,11 +1,7 @@
 #pragma once
 
-#include <stdint.h>
 #include "fonts.h"
-#include "basicTypes.h"
 #include "map.h"
-#include "tile.h"
-
 
 
 
@@ -24,7 +20,7 @@ typedef struct {
 }assetManager_t;
 
 void assetManager_init(assetManager_t *am);
-sprite_t *assetManager_getSprite(assetManager_t *am, SpriteID id);
-tile_t *assetManager_getTile(assetManager_t *am, TileID id);
-font_t *assetManager_getFont(assetManager_t *am, FontID id);
-map_t *assetManager_getMap(assetManager_t *am, MapID id);
+const sprite_t *assetManager_getSprite(assetManager_t *am, SpriteID id);
+const tile_t *assetManager_getTile(assetManager_t *am, TileID id);
+const font_t *assetManager_getFont(assetManager_t *am, FontID id);
+const map_t *assetManager_getMap(assetManager_t *am, MapID id);

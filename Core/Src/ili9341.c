@@ -1,11 +1,6 @@
 #include "ili9341.h"
-#include "images.h"
 #include "my_delay.h"
-#include "stm32l4xx_hal_def.h"
-#include "stm32l4xx_hal_gpio.h"
-#include "stm32l4xx_hal_spi.h"
-#include <stdint.h>
-#include <stdbool.h>
+
 
 #define MADCTL_MY   (1 << 7)
 #define MADCTL_MX   (1 << 6)
@@ -360,7 +355,7 @@ void ILI9341_setRotation(ili9341_t *ili9341, ili9341_rotation_t rotation){
     ILI9341_unselect(ili9341);
 }
 
-void ILI9341_writeChar(ili9341_t *ili9341, uint16_t x0, uint16_t y0, font_t *font, char ch, uint16_t color, uint16_t bgColor){
+void ILI9341_writeChar(ili9341_t *ili9341, uint16_t x0, uint16_t y0, const font_t *font, char ch, uint16_t color, uint16_t bgColor){
     if(x0 + font->width >= ili9341->width || y0 + font->height >= ili9341->height){
         return;
     }
@@ -388,7 +383,7 @@ void ILI9341_writeChar(ili9341_t *ili9341, uint16_t x0, uint16_t y0, font_t *fon
     ILI9341_unselect(ili9341);
 }
 
-void ILI9341_writeString(ili9341_t *ili9341, uint16_t x0, uint16_t y0, font_t *font, char *string, uint16_t stringSize, uint16_t color, uint16_t bgColor){
+void ILI9341_writeString(ili9341_t *ili9341, uint16_t x0, uint16_t y0, const font_t *font, const char *string, uint16_t stringSize, uint16_t color, uint16_t bgColor){
     uint16_t x_pos = x0;
     uint16_t y_pos = y0;
     for(uint16_t ch = 0; ch < stringSize; ch++){

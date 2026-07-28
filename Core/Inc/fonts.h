@@ -4,6 +4,11 @@
 
 #include <stdint.h>
 
+typedef enum{
+    FONT_SMALL,
+    FONT_BIG
+} FontID;
+
 typedef struct {
     const uint8_t   width;
     const uint8_t   height;
@@ -12,8 +17,8 @@ typedef struct {
     const uint8_t   lineSpacing;
 }font_t;
 
-extern font_t font_7x10;
-extern font_t font_11x18;
-extern font_t font_16x26;
+extern const font_t font_7x10;
+extern const font_t font_11x18;
+extern const font_t font_16x26;
 
 #endif // __FONTS_H__
