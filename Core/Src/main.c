@@ -103,7 +103,7 @@ int main(void)
   MX_GPIO_Init();
   MX_SPI1_Init();
   /* USER CODE BEGIN 2 */
-  assetManager_init(&assets);
+  //assetManager_init(&assets);
   const map_t *map = assetManager_getMap(&assets, 0);
   renderer_init(&renderer, &ili, &assets, map, ILI9341_WHITE);
   renderer_drawMap(&renderer, map);

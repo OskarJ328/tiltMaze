@@ -43,6 +43,8 @@ add_executable(${CMAKE_PROJECT_NAME}
     Core/Src/my_delay.c
     Core/Src/fonts.c
     Core/Inc/fonts.h
+    Core/gameEngine/src/sprite.c
+    Core/gameEngine/src/tile.c
 )
 
 # Add STM32CubeMX generated sources

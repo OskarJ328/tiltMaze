@@ -2,6 +2,7 @@
 
 #include "ili9341.h"
 #include "assetManager.h"
+#include "map.h"
 
 
 
@@ -22,5 +23,6 @@ void renderer_drawRectangle(renderer_t *renderer, rectangle_t rectangle, color_t
 void renderer_drawSprite(renderer_t *renderer, SpriteID id, vector2_t position);
 void renderer_drawTile(renderer_t *renderer, TileID id, vector2_t position);
 void renderer_drawMap(renderer_t *renderer, const map_t *map);
+void renderer_drawMovingObject(renderer_t *renderer, SpriteID spriteId, MapID mapId, vector2_t position);
 
 void renderer_drawText(renderer_t *renderer, FontID id, const char *text, vector2_t position, color_t color);

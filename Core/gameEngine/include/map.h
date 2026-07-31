@@ -3,7 +3,7 @@
 #include "tile.h"
 
 typedef enum {
-    BASIC,
+    FANTASY,
     SCI_FI,
     GOTH
 }MapID;
@@ -13,3 +13,5 @@ typedef struct {
     uint8_t tileSize_pixels;
     const TileID *tileIds;
 }map_t;
+
+extern map_t maps[2]; 
