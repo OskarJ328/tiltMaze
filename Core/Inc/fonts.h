@@ -17,8 +17,7 @@ typedef struct {
     const uint8_t   lineSpacing;
 }font_t;
 
-extern const font_t font_7x10;
-extern const font_t font_11x18;
-extern const font_t font_16x26;
+extern font_t fonts[2];
+
 
 #endif // __FONTS_H__

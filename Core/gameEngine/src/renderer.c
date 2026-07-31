@@ -9,7 +9,7 @@
 #include <stdint.h>
 #include <string.h>
 
-void renderer_init(renderer_t *renderer, ili9341_t *ili9341, assetManager_t *assets, const map_t *map, color_t backgroundColor){
+void renderer_init(renderer_t *renderer, ili9341_t *ili9341, assetManager_t *assets, color_t backgroundColor){
     renderer->ili9341 = ili9341;
     renderer->assets = assets;
     renderer->backgroundColor = backgroundColor;
@@ -19,8 +19,7 @@ void renderer_init(renderer_t *renderer, ili9341_t *ili9341, assetManager_t *ass
     ILI9341_fillScreen(renderer->ili9341, renderer->backgroundColor);
     ILI9341_swapAxes(renderer->ili9341);
     ILI9341_invertAxis(renderer->ili9341, invertBoth);
-    renderer->mapOffset.x = (ili9341->width - map->size_tiles.width * map->tileSize_pixels) / 2;
-    renderer->mapOffset.y = (ili9341->height - map->size_tiles.height * map->tileSize_pixels) / 2;
+
 }
 
 void renderer_setBackgroundColor(renderer_t *renderer, color_t color){
@@ -56,15 +55,17 @@ void renderer_clear(renderer_t *renderer, color_t color){
     ILI9341_fillScreen(renderer->ili9341, color);
 }
 
-void renderer_drawMap(renderer_t *renderer, const map_t *map){
+void renderer_drawMap(renderer_t *renderer, MapID id){
+    map_t *map = assetManager_getMap(renderer->assets, id);
     if(map == NULL){
         return;
     }
+    map_CountOffset(map, renderer->ili9341->width, renderer->ili9341->height);
     for(uint8_t y = 0; y < map->size_tiles.height; y++){
         for(uint8_t x = 0; x < map->size_tiles.width; x++){
             vector2_t position;
-            position.x = renderer->mapOffset.x + x * map->tileSize_pixels;
-            position.y = renderer->mapOffset.y + y * map->tileSize_pixels;
+            position.x = map->offset.x + x * map->tileSize_pixels;
+            position.y = map->offset.y + y * map->tileSize_pixels;
             uint16_t mapIdx = y * map->size_tiles.width + x;
             renderer_drawTile(renderer, map->tileIds[mapIdx], position);
         }
@@ -92,11 +93,11 @@ void renderer_drawText(renderer_t *renderer, FontID id, const char *text, vector
 
 void renderer_drawMovingObject(renderer_t *renderer, SpriteID spriteId, MapID mapId, vector2_t position){
     const sprite_t *object_sprite = assetManager_getSprite(renderer->assets, spriteId);
-    const map_t *map = assetManager_getMap(renderer->assets, mapId);
-
+    map_t *map = assetManager_getMap(renderer->assets, mapId);
     if(object_sprite == NULL || map == NULL){
         return;
     }
+    map_CountOffset(map, renderer->ili9341->width, renderer->ili9341->height);
     vector2_t object_TopLeft_pxl;
     object_TopLeft_pxl.x = position.x - object_sprite->size.width / 2;
     object_TopLeft_pxl.y = position.y - object_sprite->size.height / 2;
@@ -120,9 +121,22 @@ void renderer_drawMovingObject(renderer_t *renderer, SpriteID spriteId, MapID ma
             const tile_t *tile = assetManager_getTile(renderer->assets, id);
             const sprite_t *sprite = assetManager_getSprite(renderer->assets, tile->spriteId);
 
+            uint16_t tileOffsetX = (x - leftTileIdx) * map->tileSize_pixels;
+            uint16_t tileOffsetY = (y - topTileIdx) * map->tileSize_pixels;
             /*
             DOKONCZYC ALGORYTM UZUPELNIAJACY TABLICE RETURN_SPRITE_DATA
             */
+            for(uint16_t py = 0; py < map->tileSize_pixels; py++){
+                for(uint16_t px = 0; px < map->tileSize_pixels; px++){
+                    uint16_t bufferX = tileOffsetX + px;
+                    uint16_t bufferY = tileOffsetY + py;
+
+                    uint32_t bufferIdx = bufferY * returnSpriteSize_pxl.width + bufferX;
+                    uint32_t spriteIdx = py * sprite->size.width + px;
+
+                    returnSpriteData[bufferIdx] = sprite->data[spriteIdx];
+                }
+            }
 
         }
     }
@@ -136,5 +150,5 @@ void renderer_drawMovingObject(renderer_t *renderer, SpriteID spriteId, MapID ma
         }
     }
     image_t spriteImage = {returnSpriteData, returnSpriteSize_pxl.width, returnSpriteSize_pxl.height};
-    ILI9341_drawImage(renderer->ili9341, renderer->mapOffset.x + returnSpriteOffest_pxl.x, renderer->mapOffset.y + returnSpriteOffest_pxl.y, &spriteImage);
+    ILI9341_drawImage(renderer->ili9341, map->offset.x + returnSpriteOffest_pxl.x, map->offset.y + returnSpriteOffest_pxl.y, &spriteImage);
 }

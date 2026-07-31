@@ -18,12 +18,15 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "assetManager.h"
+#include "map.h"
 #include "spi.h"
 #include "gpio.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "renderer.h"
+#include "stm32l4xx_hal.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -104,15 +107,27 @@ int main(void)
   MX_SPI1_Init();
   /* USER CODE BEGIN 2 */
   //assetManager_init(&assets);
-  const map_t *map = assetManager_getMap(&assets, 0);
-  renderer_init(&renderer, &ili, &assets, map, ILI9341_WHITE);
-  renderer_drawMap(&renderer, map);
+  assetManager_init(&assets);
+  renderer_init(&renderer, &ili, &assets, ILI9341_WHITE);
+  renderer_drawMap(&renderer, MAP_FANTASY);
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+    vector2_t position = {
+      .x =  48,
+      .y =  8
+    };
+    for(int i = 0; i < 80; i++){
+      renderer_drawMovingObject(&renderer, SPRITE_BALL, MAP_FANTASY, position);
+      position.y++;
+      HAL_Delay(20);
+    }
+
+
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

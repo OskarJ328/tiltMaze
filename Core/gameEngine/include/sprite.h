@@ -15,7 +15,7 @@ typedef enum{
 typedef struct {
     const uint16_t *data;
     Size size;
-    const uint32_t *mask;
+    const uint16_t *mask;
 }sprite_t;
 
 /*

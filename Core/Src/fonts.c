@@ -296,8 +296,13 @@ static const uint16_t font16x26 [] = {
 };
 
 
-const font_t font_7x10  = {7,10,font7x10, .charSpacing = 0, .lineSpacing = 0};
-const font_t font_11x18 = {11,18,font11x18, .charSpacing = 0, .lineSpacing = 0};
-const font_t font_16x26 = {16,26,font16x26, .charSpacing = 0, .lineSpacing = 0};
+static const font_t font_7x10  = {7,10,font7x10, .charSpacing = 0, .lineSpacing = 0};
+static const font_t font_11x18 = {11,18,font11x18, .charSpacing = 0, .lineSpacing = 0};
+static const font_t font_16x26 = {16,26,font16x26, .charSpacing = 0, .lineSpacing = 0};
+
+font_t fonts[2] = {
+    [FONT_SMALL]    = font_7x10,
+    [FONT_BIG]      = font_16x26
+};
 
 
