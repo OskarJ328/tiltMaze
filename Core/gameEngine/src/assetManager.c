@@ -8,19 +8,19 @@
 
 #define ARRAY_SIZE(arr) (sizeof(arr) / sizeof(arr[0])) 
 
-void assetManager_init(assetManager_t *am, sprite_t *sprites, tile_t *tiles, font_t *fonts, map_t *maps){
+void assetManager_init(assetManager_t *am){
     am->sprites         = sprites;
     am->spritesCount    = ARRAY_SIZE(sprites);
 
-    am->tiles       = tiles;
-    am->tileCount   = ARRAY_SIZE(tiles);
+    am->tiles           = tiles;
+    am->tileCount       = ARRAY_SIZE(tiles);
 
-    am->fonts       = fonts;
-    am->fontCount   = ARRAY_SIZE(fonts);
+    am->fonts           = fonts;
+    am->fontCount       = ARRAY_SIZE(fonts);
 
 
-    am->maps         = maps;
-    am->mapCount    = ARRAY_SIZE(maps);
+    am->maps            = maps;
+    am->mapCount        = ARRAY_SIZE(maps);
 }
 
 const sprite_t *assetManager_getSprite(assetManager_t *am, SpriteID id){
@@ -44,7 +44,7 @@ const font_t *assetManager_getFont(assetManager_t *am, FontID id){
     return &am->fonts[id];
 }
 
-const map_t *assetManager_getMap(assetManager_t *am, MapID id){
+map_t *assetManager_getMap(assetManager_t *am, MapID id){
     if(id >= am->mapCount){
         return NULL;
     }

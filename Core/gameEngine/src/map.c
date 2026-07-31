@@ -1,5 +1,11 @@
 #include "map.h"
 
+void map_CountOffset(map_t *map, uint16_t screenWidth, uint16_t screenHeight){
+    map->offset.x = (screenWidth - map->size_tiles.width * map->tileSize_pixels) / 2;
+    map->offset.y = (screenHeight - map->size_tiles.height * map->tileSize_pixels) / 2;
+}
+
+
 static const TileID fantasyMap10x10_buffer[] =
 {
 TILE_WALL,TILE_WALL,TILE_WALL,TILE_WALL,TILE_WALL,TILE_WALL,TILE_WALL,TILE_WALL,TILE_WALL,TILE_WALL,
@@ -16,5 +22,5 @@ TILE_WALL,TILE_WALL,TILE_WALL,TILE_WALL,TILE_FLOOR,TILE_FLOOR,TILE_WALL,TILE_WAL
 static const map_t fantasyMap10x10 = {.size_tiles.width = 10, .size_tiles.height = 10, .tileSize_pixels = 16, .tileIds = fantasyMap10x10_buffer};
 
 map_t maps[2] = {
-    [FANTASY] = fantasyMap10x10
+    [MAP_FANTASY] = fantasyMap10x10
 };
