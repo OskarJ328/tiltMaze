@@ -2,15 +2,7 @@
 #define MAX_TILE_SIZE_PXL 16
 
 #include "renderer.h"
-#include "assetManager.h"
-#include "basicTypes.h"
-#include "ili9341.h"
-#include "map.h"
-#include "sprite.h"
-#include "tile.h"
-#include <stddef.h>
-#include <stdint.h>
-#include <string.h>
+#include "string.h"
 
 
 void renderer_init(renderer_t *renderer, ili9341_t *ili9341, assetManager_t *assets, color_t backgroundColor){

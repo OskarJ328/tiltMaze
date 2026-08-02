@@ -1,9 +1,5 @@
 #include "assetManager.h"
-#include "fonts.h"
-#include "sprite.h"
 #include "stddef.h"
-#include "ili9341.h"
-#include "tile.h"
 
 
 #define ARRAY_SIZE(arr) (sizeof(arr) / sizeof(arr[0])) 

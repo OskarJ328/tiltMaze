@@ -2,7 +2,6 @@
 
 #include "basicTypes.h"
 #include "tile.h"
-#include <stdint.h>
 
 typedef enum {
     MAP_FANTASY,

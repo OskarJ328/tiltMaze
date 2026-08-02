@@ -45,6 +45,10 @@ add_executable(${CMAKE_PROJECT_NAME}
     Core/Inc/fonts.h
     Core/gameEngine/src/sprite.c
     Core/gameEngine/src/tile.c
+    Core/gameEngine/include/input.h
+    Core/gameEngine/src/input.c
+    Core/gameEngine/include/button.h
+    Core/gameEngine/src/button.c
 )
 
 # Add STM32CubeMX generated sources
