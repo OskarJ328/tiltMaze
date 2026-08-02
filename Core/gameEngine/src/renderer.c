@@ -1,3 +1,6 @@
+#define MAX_TILES 4
+#define MAX_TILE_SIZE_PXL 16
+
 #include "renderer.h"
 #include "assetManager.h"
 #include "basicTypes.h"
@@ -8,6 +11,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>
+
 
 void renderer_init(renderer_t *renderer, ili9341_t *ili9341, assetManager_t *assets, color_t backgroundColor){
     renderer->ili9341 = ili9341;
@@ -98,38 +102,51 @@ void renderer_drawMovingObject(renderer_t *renderer, SpriteID spriteId, MapID ma
         return;
     }
     map_CountOffset(map, renderer->ili9341->width, renderer->ili9341->height);
+    
     vector2_t object_TopLeft_pxl;
     object_TopLeft_pxl.x = position.x - object_sprite->size.width / 2;
     object_TopLeft_pxl.y = position.y - object_sprite->size.height / 2;
-    uint16_t leftTileIdx    = object_TopLeft_pxl.x / map->tileSize_pixels;
-    uint16_t rightTileIdx   = (object_TopLeft_pxl.x + object_sprite->size.width - 1) / map->tileSize_pixels;
-    uint16_t topTileIdx     = object_TopLeft_pxl.y / map->tileSize_pixels;
-    uint16_t bottomTileIdx  = (object_TopLeft_pxl.y + object_sprite->size.height - 1) / map->tileSize_pixels;
 
-    vector2_t returnSpriteOffest_pxl = {.x = leftTileIdx * map->tileSize_pixels, .y = topTileIdx * map->tileSize_pixels};
-    uint16_t returnSpriteData[16 * 16 * 4]; //rezerwuje miejsce na 4 tile o wymiarach 16x16 pxl
+    vector2_t leftTopTileIdx;
+    leftTopTileIdx.x = object_TopLeft_pxl.x / map->tileSize_pixels;
+    leftTopTileIdx.y = object_TopLeft_pxl.y / map->tileSize_pixels;
+    
+    vector2_t rightBottomTileIdx;
+    rightBottomTileIdx.x = (object_TopLeft_pxl.x + object_sprite->size.width - 1) / map->tileSize_pixels;
+    rightBottomTileIdx.y = (object_TopLeft_pxl.y + object_sprite->size.height - 1) / map->tileSize_pixels;
 
-    vector2_t objectInReturnSprite = {.x = object_TopLeft_pxl.x - returnSpriteOffest_pxl.x, .y = object_TopLeft_pxl.y - returnSpriteOffest_pxl.y};
+    vector2_t returnSpriteOffest_pxl;
+    returnSpriteOffest_pxl.x = leftTopTileIdx.x * map->tileSize_pixels; 
+    returnSpriteOffest_pxl.y = leftTopTileIdx.y * map->tileSize_pixels;
 
-    Size returnSpriteSize_tiles = {rightTileIdx - leftTileIdx + 1, bottomTileIdx - topTileIdx + 1};
+    vector2_t objectInReturnSprite;
+    objectInReturnSprite.x = object_TopLeft_pxl.x - returnSpriteOffest_pxl.x;
+    objectInReturnSprite.y = object_TopLeft_pxl.y - returnSpriteOffest_pxl.y;
+
+    Size returnSpriteSize_tiles;
+    returnSpriteSize_tiles.width = rightBottomTileIdx.x - leftTopTileIdx.x + 1;
+    returnSpriteSize_tiles.height = rightBottomTileIdx.y - leftTopTileIdx.y + 1;
+    
     Size returnSpriteSize_pxl;
     returnSpriteSize_pxl.width  = returnSpriteSize_tiles.width * map->tileSize_pixels;
     returnSpriteSize_pxl.height = returnSpriteSize_tiles.height * map->tileSize_pixels;
-    for(uint16_t y = topTileIdx; y <= bottomTileIdx; y++){
-        for(uint16_t x = leftTileIdx; x <= rightTileIdx; x++){
+    
+    uint16_t returnSpriteData[MAX_TILE_SIZE_PXL * MAX_TILE_SIZE_PXL * MAX_TILES];
+
+    for(uint16_t y = leftTopTileIdx.y; y <= rightBottomTileIdx.y; y++){
+        for(uint16_t x = leftTopTileIdx.x; x <= rightBottomTileIdx.x; x++){
             TileID id = map->tileIds[y * map->size_tiles.width + x];
             const tile_t *tile = assetManager_getTile(renderer->assets, id);
             const sprite_t *sprite = assetManager_getSprite(renderer->assets, tile->spriteId);
 
-            uint16_t tileOffsetX = (x - leftTileIdx) * map->tileSize_pixels;
-            uint16_t tileOffsetY = (y - topTileIdx) * map->tileSize_pixels;
-            /*
-            DOKONCZYC ALGORYTM UZUPELNIAJACY TABLICE RETURN_SPRITE_DATA
-            */
+            vector2_t tileInReturnSprite;
+            tileInReturnSprite.x = (x - leftTopTileIdx.x) * map->tileSize_pixels;
+            tileInReturnSprite.y = (y - leftTopTileIdx.y) * map->tileSize_pixels;
+
             for(uint16_t py = 0; py < map->tileSize_pixels; py++){
                 for(uint16_t px = 0; px < map->tileSize_pixels; px++){
-                    uint16_t bufferX = tileOffsetX + px;
-                    uint16_t bufferY = tileOffsetY + py;
+                    uint16_t bufferX = tileInReturnSprite.x + px;
+                    uint16_t bufferY = tileInReturnSprite.y + py;
 
                     uint32_t bufferIdx = bufferY * returnSpriteSize_pxl.width + bufferX;
                     uint32_t spriteIdx = py * sprite->size.width + px;
@@ -143,12 +160,17 @@ void renderer_drawMovingObject(renderer_t *renderer, SpriteID spriteId, MapID ma
 
     for(uint16_t y = 0; y < object_sprite->size.height; y++){
         for(uint16_t x = 0; x < object_sprite->size.width; x++){
-            if(object_sprite->mask[y] & (1 << x)){
-                uint16_t idx = (objectInReturnSprite.y + y) * returnSpriteSize_pxl.width + objectInReturnSprite.x + x ;
-                returnSpriteData[idx] = object_sprite->data[y * object_sprite->size.width + x];
+            if(object_sprite->mask[y] & (1 << (31 - x))){
+                uint16_t bufferX = objectInReturnSprite.x + x;
+                uint16_t bufferY = objectInReturnSprite.y + y;
+
+                uint16_t returnSpriteIdx = bufferY * returnSpriteSize_pxl.width + bufferX;
+                uint16_t objectSpriteIdx = y * object_sprite->size.width + x;
+
+                returnSpriteData[returnSpriteIdx] = object_sprite->data[objectSpriteIdx];
             }
         }
     }
-    image_t spriteImage = {returnSpriteData, returnSpriteSize_pxl.width, returnSpriteSize_pxl.height};
-    ILI9341_drawImage(renderer->ili9341, map->offset.x + returnSpriteOffest_pxl.x, map->offset.y + returnSpriteOffest_pxl.y, &spriteImage);
+    image_t returnSpriteImage = {returnSpriteData, returnSpriteSize_pxl.width, returnSpriteSize_pxl.height};
+    ILI9341_drawImage(renderer->ili9341, map->offset.x + returnSpriteOffest_pxl.x, map->offset.y + returnSpriteOffest_pxl.y, &returnSpriteImage);
 }
