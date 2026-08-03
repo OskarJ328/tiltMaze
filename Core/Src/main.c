@@ -18,14 +18,18 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "button.h"
 #include "i2c.h"
 #include "spi.h"
+#include "usart.h"
 #include "gpio.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "renderer.h"
-#include "stm32l4xx_hal.h"
+#include "input.h"
+#include "my_uart.h"
+#include <stdint.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -60,6 +64,17 @@ ili9341_t ili = {
   .width = ILI9341_WIDTH,
   .colorFormat = BGR
 };
+input_t input;
+button_t resumeButton;
+button_t pauseButton;
+
+
+uart_t uart = {
+  .uart_handle = &huart2
+};
+
+uint32_t currentTime = 0;
+uint32_t previousTime = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -105,26 +120,45 @@ int main(void)
   MX_GPIO_Init();
   MX_SPI1_Init();
   MX_I2C1_Init();
+  MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
-  //assetManager_init(&assets);
+
+  my_uart_init(&uart);
+
   assetManager_init(&assets);
   renderer_init(&renderer, &ili, &assets, ILI9341_WHITE);
   renderer_drawMap(&renderer, MAP_FANTASY);
 
+  input_init(&input);
+  input_addButton(&input, &resumeButton, BUTTON_RESUME);
+  input_addButton(&input, &pauseButton, BUTTON_PAUSE);
+
+  button_t *button;
+  button = input_getButton(&input, BUTTON_PAUSE);
+  button_init(button, BUTTON_PAUSE_GPIO_Port, BUTTON_PAUSE_Pin, GPIO_PIN_RESET);
+  button = input_getButton(&input, BUTTON_RESUME);
+  button_init(button, BUTTON_RESUME_GPIO_Port, BUTTON_RESUME_Pin, GPIO_PIN_RESET);
+  
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    vector2_t position = {
-      .x =  48,
-      .y =  8
-    };
-    for(int i = 0; i < 80; i++){
-      renderer_drawMovingObject(&renderer, SPRITE_BALL, MAP_FANTASY, position);
-      position.y++;
-      HAL_Delay(20);
+    currentTime = HAL_GetTick();
+    if(currentTime - previousTime > 20){
+      input_update(&input, 20);
+      previousTime = currentTime;
+    }
+    button = input_getButton(&input, BUTTON_PAUSE);
+    if(button_isHeldFor(button, 2000)){
+      uint32_t time = button_getHoldTime_ms(button);
+      my_uart_printf(&uart, "pause button was held for %d\n", time);
+    }
+    button = input_getButton(&input, BUTTON_RESUME);
+    if(button_isHeldFor(button, 2000)){
+      uint32_t time = button_getHoldTime_ms(button);
+      my_uart_printf(&uart, "resume button was held for %d\n", time);
     }
 
 

@@ -15,8 +15,11 @@ typedef struct{
     uint32_t            holdTime_ms;
 }button_t;
 
+extern button_t *buttons[2];
+
 typedef enum{
-    BUTTON_PASUE,
+    BUTTON_PAUSE,
+    BUTTON_RESUME,
     BUTTON_CONFIRM,
     BUTTON_UP,
     BUTTON_DOWN,
@@ -34,4 +37,3 @@ bool button_wasReleased(button_t *button);
 bool button_isHeldFor(button_t *button, uint32_t time_ms);
 uint32_t button_getHoldTime_ms(button_t *button);
 
-extern button_t buttons[4];

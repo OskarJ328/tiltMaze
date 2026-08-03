@@ -53,6 +53,8 @@ add_executable(${CMAKE_PROJECT_NAME}
     Core/Src/MPU6050.c
     Core/gameEngine/include/imu.h
     Core/gameEngine/src/imu.c
+    Core/Src/my_uart.c
+    Core/Inc/my_uart.h
 )
 
 # Add STM32CubeMX generated sources

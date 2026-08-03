@@ -1,7 +1,9 @@
 #include "button.h"
 
+button_t *buttons[2]; 
+
 static bool button_stateChanged(button_t *button){
-    return button->currentState != button->activeState;
+    return button->currentState != button->previousState;
 }
 
 void button_init(button_t *button, GPIO_TypeDef *port, uint16_t pin, GPIO_PinState activeState){
@@ -21,7 +23,7 @@ void button_update(button_t  *button, uint32_t deltaTime_ms){
         button->holdTime_ms += deltaTime_ms;
     }
     else{
-        button->activeState = false;
+        button->currentState = false;
         button->holdTime_ms = 0;
     }
 }
@@ -60,5 +62,3 @@ bool button_isHeldFor(button_t *button, uint32_t time_ms){
 uint32_t button_getHoldTime_ms(button_t *button){
     return button->holdTime_ms;
 }
-
-button_t buttons[4];
