@@ -1,9 +1,6 @@
 #include "assetManager.h"
 #include "stddef.h"
 
-
-#define ARRAY_SIZE(arr) (sizeof(arr) / sizeof(arr[0])) 
-
 void assetManager_init(assetManager_t *am){
     am->sprites         = sprites;
     am->spritesCount    = ARRAY_SIZE(sprites);

@@ -60,3 +60,5 @@ bool button_isHeldFor(button_t *button, uint32_t time_ms){
 uint32_t button_getHoldTime_ms(button_t *button){
     return button->holdTime_ms;
 }
+
+button_t buttons[4];

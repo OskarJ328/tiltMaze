@@ -49,6 +49,10 @@ add_executable(${CMAKE_PROJECT_NAME}
     Core/gameEngine/src/input.c
     Core/gameEngine/include/button.h
     Core/gameEngine/src/button.c
+    Core/Inc/MPU6050.h
+    Core/Src/MPU6050.c
+    Core/gameEngine/include/imu.h
+    Core/gameEngine/src/imu.c
 )
 
 # Add STM32CubeMX generated sources

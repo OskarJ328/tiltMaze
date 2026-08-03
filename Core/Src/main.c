@@ -18,8 +18,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "assetManager.h"
-#include "map.h"
+#include "i2c.h"
 #include "spi.h"
 #include "gpio.h"
 
@@ -89,7 +88,7 @@ int main(void)
   /* MCU Configuration--------------------------------------------------------*/
 
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-   HAL_Init();
+  HAL_Init();
 
   /* USER CODE BEGIN Init */
 
@@ -105,6 +104,7 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_SPI1_Init();
+  MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
   //assetManager_init(&assets);
   assetManager_init(&assets);
