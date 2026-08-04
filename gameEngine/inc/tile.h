@@ -4,7 +4,8 @@
 
 typedef enum {
     TILE_WALL,
-    TILE_FLOOR
+    TILE_FLOOR,
+    TILE_NULL
 }TileID;
 
 typedef struct {

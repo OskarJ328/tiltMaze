@@ -46,6 +46,7 @@ add_executable(${CMAKE_PROJECT_NAME}
     libraries/src/fonts.c
     libraries/src/MPU6050.c
     libraries/src/my_uart.c
+    games/tiltMaze/src/tiltMaze.c
 )
 
 # Add STM32CubeMX generated sources
@@ -66,6 +67,7 @@ target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user defined include paths
     gameEngine/inc
     libraries/inc
+    games/tiltMaze/inc
 )
 
 # Add project symbols (macros)
