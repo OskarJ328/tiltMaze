@@ -26,4 +26,4 @@ floatVector3_t imu_getAccel(imu_t *imu);
 floatVector3_t imu_getGyro(imu_t *imu);
 orientation_t imu_getOrientation(imu_t *imu);
 
-extern imu_t imu;
+

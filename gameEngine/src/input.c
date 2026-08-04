@@ -2,6 +2,8 @@
 #include "button.h"
 #include "stddef.h"
 
+static button_t *buttons[2];
+static imu_t imu;
 
 void input_init(input_t *input){
     input->buttons = buttons;

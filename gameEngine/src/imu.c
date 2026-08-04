@@ -64,4 +64,3 @@ orientation_t imu_getOrientation(imu_t *imu){
     return imu->orientation;
 }
 
-imu_t imu;

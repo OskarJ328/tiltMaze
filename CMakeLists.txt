@@ -33,28 +33,19 @@ enable_language(C ASM)
 
 # Create an executable object type
 add_executable(${CMAKE_PROJECT_NAME}
-    Core/gameEngine/include/renderer.h
-    Core/gameEngine/src/renderer.c
-    Core/gameEngine/include/basicTypes.h
-    Core/gameEngine/include/assetManager.h
-    Core/gameEngine/src/assetManager.c
-    Core/gameEngine/src/map.c
-    Core/Src/ili9341.c
-    Core/Src/my_delay.c
-    Core/Src/fonts.c
-    Core/Inc/fonts.h
-    Core/gameEngine/src/sprite.c
-    Core/gameEngine/src/tile.c
-    Core/gameEngine/include/input.h
-    Core/gameEngine/src/input.c
-    Core/gameEngine/include/button.h
-    Core/gameEngine/src/button.c
-    Core/Inc/MPU6050.h
-    Core/Src/MPU6050.c
-    Core/gameEngine/include/imu.h
-    Core/gameEngine/src/imu.c
-    Core/Src/my_uart.c
-    Core/Inc/my_uart.h
+    gameEngine/src/renderer.c
+    gameEngine/src/assetManager.c
+    gameEngine/src/map.c
+    gameEngine/src/sprite.c
+    gameEngine/src/tile.c
+    gameEngine/src/input.c
+    gameEngine/src/button.c
+    gameEngine/src/imu.c
+    libraries/src/ili9341.c
+    libraries/src/my_delay.c
+    libraries/src/fonts.c
+    libraries/src/MPU6050.c
+    libraries/src/my_uart.c
 )
 
 # Add STM32CubeMX generated sources
@@ -73,7 +64,8 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
 # Add include paths
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user defined include paths
-    Core/gameEngine/include
+    gameEngine/inc
+    libraries/inc
 )
 
 # Add project symbols (macros)

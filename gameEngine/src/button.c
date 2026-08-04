@@ -1,6 +1,6 @@
 #include "button.h"
 
-button_t *buttons[2]; 
+
 
 static bool button_stateChanged(button_t *button){
     return button->currentState != button->previousState;

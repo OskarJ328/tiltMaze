@@ -15,7 +15,7 @@ typedef struct{
     uint32_t            holdTime_ms;
 }button_t;
 
-extern button_t *buttons[2];
+
 
 typedef enum{
     BUTTON_PAUSE,
