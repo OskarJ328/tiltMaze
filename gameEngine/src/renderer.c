@@ -60,8 +60,8 @@ void renderer_drawMap(renderer_t *renderer, MapID id){
     for(uint8_t y = 0; y < map->size_tiles.height; y++){
         for(uint8_t x = 0; x < map->size_tiles.width; x++){
             vector2_t position;
-            position.x = map->offset.x + x * map->tileSize_pixels;
-            position.y = map->offset.y + y * map->tileSize_pixels;
+            position.x = map->offset.x + x * map->tileSize_pixels.width;
+            position.y = map->offset.y + y * map->tileSize_pixels.height;
             uint16_t mapIdx = y * map->size_tiles.width + x;
             renderer_drawTile(renderer, map->tileIds[mapIdx], position);
         }
@@ -100,16 +100,16 @@ void renderer_drawMovingObject(renderer_t *renderer, SpriteID spriteId, MapID ma
     object_TopLeft_pxl.y = position.y - object_sprite->size.height / 2;
 
     vector2_t leftTopTileIdx;
-    leftTopTileIdx.x = object_TopLeft_pxl.x / map->tileSize_pixels;
-    leftTopTileIdx.y = object_TopLeft_pxl.y / map->tileSize_pixels;
+    leftTopTileIdx.x = object_TopLeft_pxl.x / map->tileSize_pixels.width;
+    leftTopTileIdx.y = object_TopLeft_pxl.y / map->tileSize_pixels.height;
     
     vector2_t rightBottomTileIdx;
-    rightBottomTileIdx.x = (object_TopLeft_pxl.x + object_sprite->size.width - 1) / map->tileSize_pixels;
-    rightBottomTileIdx.y = (object_TopLeft_pxl.y + object_sprite->size.height - 1) / map->tileSize_pixels;
+    rightBottomTileIdx.x = (object_TopLeft_pxl.x + object_sprite->size.width - 1) / map->tileSize_pixels.width;
+    rightBottomTileIdx.y = (object_TopLeft_pxl.y + object_sprite->size.height - 1) / map->tileSize_pixels.height;
 
     vector2_t returnSpriteOffest_pxl;
-    returnSpriteOffest_pxl.x = leftTopTileIdx.x * map->tileSize_pixels; 
-    returnSpriteOffest_pxl.y = leftTopTileIdx.y * map->tileSize_pixels;
+    returnSpriteOffest_pxl.x = leftTopTileIdx.x * map->tileSize_pixels.width; 
+    returnSpriteOffest_pxl.y = leftTopTileIdx.y * map->tileSize_pixels.height;
 
     vector2_t objectInReturnSprite;
     objectInReturnSprite.x = object_TopLeft_pxl.x - returnSpriteOffest_pxl.x;
@@ -120,8 +120,8 @@ void renderer_drawMovingObject(renderer_t *renderer, SpriteID spriteId, MapID ma
     returnSpriteSize_tiles.height = rightBottomTileIdx.y - leftTopTileIdx.y + 1;
     
     Size returnSpriteSize_pxl;
-    returnSpriteSize_pxl.width  = returnSpriteSize_tiles.width * map->tileSize_pixels;
-    returnSpriteSize_pxl.height = returnSpriteSize_tiles.height * map->tileSize_pixels;
+    returnSpriteSize_pxl.width  = returnSpriteSize_tiles.width * map->tileSize_pixels.width;
+    returnSpriteSize_pxl.height = returnSpriteSize_tiles.height * map->tileSize_pixels.height;
     
     uint16_t returnSpriteData[MAX_TILE_SIZE_PXL * MAX_TILE_SIZE_PXL * MAX_TILES];
 
@@ -132,11 +132,11 @@ void renderer_drawMovingObject(renderer_t *renderer, SpriteID spriteId, MapID ma
             const sprite_t *sprite = assetManager_getSprite(renderer->assets, tile->spriteId);
 
             vector2_t tileInReturnSprite;
-            tileInReturnSprite.x = (x - leftTopTileIdx.x) * map->tileSize_pixels;
-            tileInReturnSprite.y = (y - leftTopTileIdx.y) * map->tileSize_pixels;
+            tileInReturnSprite.x = (x - leftTopTileIdx.x) * map->tileSize_pixels.width;
+            tileInReturnSprite.y = (y - leftTopTileIdx.y) * map->tileSize_pixels.height;
 
-            for(uint16_t py = 0; py < map->tileSize_pixels; py++){
-                for(uint16_t px = 0; px < map->tileSize_pixels; px++){
+            for(uint16_t py = 0; py < map->tileSize_pixels.height; py++){
+                for(uint16_t px = 0; px < map->tileSize_pixels.width; px++){
                     uint16_t bufferX = tileInReturnSprite.x + px;
                     uint16_t bufferY = tileInReturnSprite.y + py;
 

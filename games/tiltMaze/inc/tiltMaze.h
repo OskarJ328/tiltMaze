@@ -2,10 +2,12 @@
 
 #include "basicTypes.h"
 #include "map.h"
+#include "sprite.h"
 
 typedef struct {
     vector2_t position;
     vector2_t velocity;
+    sprite_t *sprite;
 }ball_t;
 
 typedef struct{
@@ -13,4 +15,4 @@ typedef struct{
     ball_t ball;
 }tiltMaze_t;
 
-void tiltMaze_init(tiltMaze_t *tiltMaze, map_t *map, vector2_t ball_startingPosition);
+void tiltMaze_init(tiltMaze_t *tiltMaze, map_t *map, sprite_t *ball);

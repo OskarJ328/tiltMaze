@@ -11,9 +11,10 @@ typedef enum {
 
 typedef struct {
     Size size_tiles;
-    uint8_t tileSize_pixels;
+    Size tileSize_pixels;
     const TileID *tileIds;
     vector2_t offset;
+    vector2_t startingTile;
 }map_t;
 
 void map_CountOffset(map_t *map, uint16_t screenWidth, uint16_t screenHeight);

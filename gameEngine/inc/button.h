@@ -13,6 +13,8 @@ typedef struct{
     bool                currentState;
 
     uint32_t            holdTime_ms;
+
+    bool                wasInitialized;
 }button_t;
 
 

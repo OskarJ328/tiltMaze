@@ -41,12 +41,14 @@ add_executable(${CMAKE_PROJECT_NAME}
     gameEngine/src/input.c
     gameEngine/src/button.c
     gameEngine/src/imu.c
+    gameEngine/src/inputConfig.c
     libraries/src/ili9341.c
     libraries/src/my_delay.c
     libraries/src/fonts.c
     libraries/src/MPU6050.c
     libraries/src/my_uart.c
     games/tiltMaze/src/tiltMaze.c
+    
 )
 
 # Add STM32CubeMX generated sources
