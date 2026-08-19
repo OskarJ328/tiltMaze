@@ -1,7 +1,9 @@
 #include "tiltMaze.h"
 #include "basicTypes.h"
+#include "button.h"
 #include "input.h"
 #include "map.h"
+#include "tile.h"
 
 
 static TileID tiltMaze_getTileAtPixel(map_t *map, vector2_t pixel){
@@ -50,8 +52,8 @@ static vector2_t tiltMaze_getTileRightBottomPixel(vector2_t tilePosition, Size s
 */
 static vector2_t tiltMaze_getObjectLeftTopPixel(vector2_t objectPosition, Size size){
     vector2_t objectLeftTopPixel;
-    objectLeftTopPixel.x = objectPosition.x - size.width;
-    objectLeftTopPixel.y = objectPosition.y - size.height;
+    objectLeftTopPixel.x = objectPosition.x - size.width / 2;
+    objectLeftTopPixel.y = objectPosition.y - size.height / 2;
     return objectLeftTopPixel;
 }
 /*
@@ -59,17 +61,57 @@ static vector2_t tiltMaze_getObjectLeftTopPixel(vector2_t objectPosition, Size s
 */
 static vector2_t tiltMaze_getObjectRigthBottomPixel(vector2_t objectPosition, Size size){
     vector2_t objectRightBottomPixel;
-    objectRightBottomPixel.x = objectPosition.x - size.width;
-    objectRightBottomPixel.y = objectPosition.y - size.height;
+    objectRightBottomPixel.x = objectPosition.x + size.width / 2;
+    objectRightBottomPixel.y = objectPosition.y + size.height / 2;
     return objectRightBottomPixel;
 }
 
-static void moveUp(){
+static void tiltMaze_moveUp(tiltMaze_t *tiltMaze){
     
+    vector2_t ball_nextPosition = tiltMaze->ball.position;
+    ball_nextPosition.y -= 1;
+    vector2_t ball_nextLeftTopPixel = tiltMaze_getObjectLeftTopPixel(ball_nextPosition, tiltMaze->ball.sprite->size);
+    TileID ball_leftTopTile = tiltMaze_getTileAtPixel(tiltMaze->map, ball_nextLeftTopPixel);
+
+    if(ball_leftTopTile == TILE_WALL){
+        return;
+    }
+    else{
+        tiltMaze->ball.position = ball_nextPosition;
+    }
 }
 
-static void tiltMaze_moveBall(){
-    button_t *button = input_getButton(input_t *input, ButtonID id)
+static void tiltMaze_moveDown(tiltMaze_t *tiltMaze){
+
+}
+
+static void tiltMaze_moveLeft(tiltMaze_t *tiltMaze){
+
+}
+
+static void tiltMaze_moveRight(tiltMaze_t *tiltMaze){
+
+}
+
+static void tiltMaze_moveBall(tiltMaze_t *tiltMaze, input_t *input){
+    button_t *button;
+
+    button = input_getButton(input, BUTTON_UP);
+    if(button_isPressed(button)){
+        tiltMaze_moveUp(tiltMaze);
+    }
+    button = input_getButton(input, BUTTON_DOWN);
+    if(button_isPressed(button)){
+        tiltMaze_moveDown(tiltMaze);
+    }
+    button = input_getButton(input, BUTTON_LEFT);
+    if(button_isPressed(button)){
+        tiltMaze_moveLeft(tiltMaze);
+    }
+    button = input_getButton(input, BUTTON_RIGHT);
+    if(button_isPressed(button)){
+        tiltMaze_moveRight(tiltMaze);
+    }
 }
 
 void tiltMaze_init(tiltMaze_t *tiltMaze, map_t *map, sprite_t *ball){
