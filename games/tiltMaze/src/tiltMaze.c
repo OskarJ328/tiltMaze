@@ -201,3 +201,7 @@ void tiltMaze_init(tiltMaze_t *tiltMaze, map_t *map, sprite_t *ball){
     tiltMaze->ball.velocity.y = 0;
     tiltMaze->ball.sprite = ball;
 }
+
+void tiltMaze_update(tiltMaze_t *tiltMaze, input_t *input){
+    tiltMaze_moveBall(tiltMaze, input);
+}

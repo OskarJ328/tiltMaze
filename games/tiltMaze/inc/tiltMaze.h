@@ -1,6 +1,7 @@
 #pragma once
 
 #include "basicTypes.h"
+#include "input.h"
 #include "map.h"
 #include "sprite.h"
 
@@ -16,3 +17,4 @@ typedef struct{
 }tiltMaze_t;
 
 void tiltMaze_init(tiltMaze_t *tiltMaze, map_t *map, sprite_t *ball);
+void tiltMaze_update(tiltMaze_t *tiltMaze, input_t *input);
