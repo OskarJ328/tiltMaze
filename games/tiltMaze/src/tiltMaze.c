@@ -174,19 +174,19 @@ static void tiltMaze_moveBall(tiltMaze_t *tiltMaze, input_t *input){
     button_t *button;
 
     button = input_getButton(input, BUTTON_UP);
-    if(button_wasPressed(button)){
+    if(button_isPressed(button)){
         tiltMaze_moveUp(tiltMaze);
     }
     button = input_getButton(input, BUTTON_DOWN);
-    if(button_wasPressed(button)){
+    if(button_isPressed(button)){
         tiltMaze_moveDown(tiltMaze);
     }
     button = input_getButton(input, BUTTON_LEFT);
-    if(button_wasPressed(button)){
+    if(button_isPressed(button)){
         tiltMaze_moveLeft(tiltMaze);
     }
     button = input_getButton(input, BUTTON_RIGHT);
-    if(button_wasPressed(button)){
+    if(button_isPressed(button)){
         tiltMaze_moveRight(tiltMaze);
     }
 }

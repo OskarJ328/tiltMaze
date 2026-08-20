@@ -34,7 +34,7 @@ void button_update(button_t  *button, uint32_t deltaTime_ms){
 
 bool button_isPressed(button_t *button){
     if(button->wasInitialized){
-        if(button->currentState == button->activeState){
+        if(button->currentState){
             return true;
         }
     }
@@ -43,7 +43,7 @@ bool button_isPressed(button_t *button){
 
 bool button_isReleased(button_t *button){
     if(button->wasInitialized){
-        if(button->currentState != button->activeState){
+        if(!button->currentState){
             return true;
         }
     }
