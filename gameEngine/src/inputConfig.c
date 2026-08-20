@@ -4,6 +4,6 @@
 
 
 void inputConfig_init(input_t *input){
-    input_addButton(input, BUTTON_PAUSE, BUTTON_PAUSE_GPIO_Port, BUTTON_PAUSE_Pin, GPIO_PIN_RESET);
-    input_addButton(input, BUTTON_RESUME, BUTTON_RESUME_GPIO_Port, BUTTON_RESUME_Pin, GPIO_PIN_RESET);
+    input_addButton(input, BUTTON_UP, BUTTON_UP_GPIO_Port, BUTTON_UP_Pin, GPIO_PIN_RESET);
+    input_addButton(input, BUTTON_DOWN, BUTTON_DOWN_GPIO_Port, BUTTON_DOWN_Pin, GPIO_PIN_RESET);
 }

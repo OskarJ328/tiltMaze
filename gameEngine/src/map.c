@@ -19,7 +19,7 @@ TILE_WALL,TILE_FLOOR,TILE_WALL,TILE_FLOOR,TILE_WALL,TILE_WALL,TILE_FLOOR,TILE_FL
 TILE_WALL,TILE_FLOOR,TILE_FLOOR,TILE_FLOOR,TILE_FLOOR,TILE_FLOOR,TILE_FLOOR,TILE_FLOOR,TILE_FLOOR,TILE_WALL,
 TILE_WALL,TILE_WALL,TILE_WALL,TILE_WALL,TILE_FLOOR,TILE_FLOOR,TILE_WALL,TILE_WALL,TILE_WALL,TILE_WALL
 };
-static const map_t fantasyMap10x10 = {.size_tiles.width = 10, .size_tiles.height = 10, .tileSize_pixels.width = 16, .tileSize_pixels.height = 16, .tileIds = fantasyMap10x10_buffer};
+static const map_t fantasyMap10x10 = {.size_tiles.width = 10, .size_tiles.height = 10, .tileSize_pixels.width = 16, .tileSize_pixels.height = 16, .tileIds = fantasyMap10x10_buffer, .startingTile.x = 2, .startingTile.y = 2};
 
 map_t maps[2] = {
     [MAP_FANTASY] = fantasyMap10x10

@@ -191,7 +191,7 @@ static void tiltMaze_moveBall(tiltMaze_t *tiltMaze, input_t *input){
     }
 }
 
-void tiltMaze_init(tiltMaze_t *tiltMaze, map_t *map, sprite_t *ball){
+void tiltMaze_init(tiltMaze_t *tiltMaze, map_t *map, const sprite_t *ball){
     tiltMaze->map = map;
     vector2_t ball_startingPosition = tiltMaze_getTileCenterPixel(tiltMaze->map->startingTile, map->tileSize_pixels);
 

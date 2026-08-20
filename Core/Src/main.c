@@ -18,9 +18,16 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "assetManager.h"
 #include "button.h"
 #include "i2c.h"
+#include "inputConfig.h"
+#include "map.h"
 #include "spi.h"
+#include "sprite.h"
+#include "stm32l4xx_hal.h"
+#include "stm32l4xx_hal_gpio.h"
+#include "tiltMaze.h"
 #include "usart.h"
 #include "gpio.h"
 
@@ -39,7 +46,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-
+#define LOOP_PERIOD_MS 100
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -72,6 +79,7 @@ button_t pauseButton;
 uart_t uart = {
   .uart_handle = &huart2
 };
+tiltMaze_t tiltMaze;
 
 uint32_t currentTime = 0;
 uint32_t previousTime = 0;
@@ -130,36 +138,42 @@ int main(void)
   renderer_drawMap(&renderer, MAP_FANTASY);
 
   input_init(&input);
-  input_addButton(&input, &resumeButton, BUTTON_RESUME);
-  input_addButton(&input, &pauseButton, BUTTON_PAUSE);
+  inputConfig_init(&input);
+  map_t *map = assetManager_getMap(&assets, MAP_FANTASY);
+  const sprite_t *sprite;
+  sprite = assetManager_getSprite(&assets, SPRITE_BALL);
+  tiltMaze_init(&tiltMaze, map,  sprite);
+  //renderer_drawMovingObject(&renderer, SPRITE_BALL, MAP_FANTASY, tiltMaze.ball.position);
+
 
   button_t *button;
-  button = input_getButton(&input, BUTTON_PAUSE);
-  button_init(button, BUTTON_PAUSE_GPIO_Port, BUTTON_PAUSE_Pin, GPIO_PIN_RESET);
-  button = input_getButton(&input, BUTTON_RESUME);
-  button_init(button, BUTTON_RESUME_GPIO_Port, BUTTON_RESUME_Pin, GPIO_PIN_RESET);
-  
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+    renderer_drawMovingObject(&renderer, SPRITE_BALL, MAP_FANTASY, tiltMaze.ball.position);
     currentTime = HAL_GetTick();
-    if(currentTime - previousTime > 20){
-      input_update(&input, 20);
-      previousTime = currentTime;
+    if(currentTime - previousTime > LOOP_PERIOD_MS){
+      input_update(&input, LOOP_PERIOD_MS);
+      tiltMaze_update(&tiltMaze, &input);
+      button = input_getButton(&input, BUTTON_UP);
+      if(button_wasPressed(button)){
+        my_uart_printf(&uart, "buttonUp was pressed\n");
+      }
+
+      button = input_getButton(&input, BUTTON_DOWN);
+      if(button_wasPressed(button)){
+        my_uart_printf(&uart, "buttonDown was pressed\n");
+      }
+
+
+
+      previousTime = HAL_GetTick();
     }
-    button = input_getButton(&input, BUTTON_PAUSE);
-    if(button_isHeldFor(button, 2000)){
-      uint32_t time = button_getHoldTime_ms(button);
-      my_uart_printf(&uart, "pause button was held for %d\n", time);
-    }
-    button = input_getButton(&input, BUTTON_RESUME);
-    if(button_isHeldFor(button, 2000)){
-      uint32_t time = button_getHoldTime_ms(button);
-      my_uart_printf(&uart, "resume button was held for %d\n", time);
-    }
+    
+
 
 
     /* USER CODE END WHILE */
