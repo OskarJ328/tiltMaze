@@ -5,6 +5,9 @@
 
 */
 
+#define MAX_VELOCITY 4
+#define MIN_VELOCITY -4
+
 #include "tiltMaze.h"
 #include "basicTypes.h"
 #include "button.h"
@@ -187,65 +190,82 @@ static bool tiltMaze_checkBallCollision(tiltMaze_t *tiltMaze, vector2_t nextPosi
     return false;
 }
 
-static void tiltMaze_moveUp(tiltMaze_t *tiltMaze){ 
-    vector2_t ball_nextPosition = tiltMaze->ball.position;
-    ball_nextPosition.y -= 1;
+static floatVector2_t tiltMaze_countBallPosition(tiltMaze_t *tiltMaze, uint32_t deltaTime_ms){
+    float dt_s = deltaTime_ms / 1000.0f;
     
-    if(tiltMaze_checkBallCollision(tiltMaze, ball_nextPosition)){
-       return; 
+    floatVector2_t newVelocity = tiltMaze->ball.velocity;
+    newVelocity.x += tiltMaze->ball.acceleration.x * dt_s;
+    newVelocity.y += tiltMaze->ball.acceleration.y * dt_s;
+    if(newVelocity.x > MAX_VELOCITY){
+        newVelocity.x = MAX_VELOCITY;
     }
-    tiltMaze->ball.position = ball_nextPosition;  
+    else if(newVelocity.x < MIN_VELOCITY){
+        newVelocity.x = MIN_VELOCITY;
+    }
+    tiltMaze->ball.velocity.x = newVelocity.x;
+
+    if(newVelocity.y > MAX_VELOCITY){
+        newVelocity.y = MAX_VELOCITY;
+    }
+    else if(newVelocity.y < MIN_VELOCITY){
+        newVelocity.y = MIN_VELOCITY;
+    }
+    tiltMaze->ball.velocity.y = newVelocity.y;
+
+    floatVector2_t newFloatPosition = tiltMaze->ball.floatPosition;
+    newFloatPosition.x += tiltMaze->ball.velocity.x * dt_s;
+    newFloatPosition.y += tiltMaze->ball.velocity.y * dt_s;
+
+    return newFloatPosition;
 }
 
-static void tiltMaze_moveDown(tiltMaze_t *tiltMaze){
-    vector2_t ball_nextPosition = tiltMaze->ball.position;
-    ball_nextPosition.y += 1;
-    
-    if(tiltMaze_checkBallCollision(tiltMaze, ball_nextPosition)){
-       return; 
-    }
-    tiltMaze->ball.position = ball_nextPosition;
-}
-
-static void tiltMaze_moveLeft(tiltMaze_t *tiltMaze){
-    vector2_t ball_nextPosition = tiltMaze->ball.position;
-    ball_nextPosition.x -= 1;
-
-    if(tiltMaze_checkBallCollision(tiltMaze, ball_nextPosition)){
-       return; 
-    }
-    tiltMaze->ball.position = ball_nextPosition;
-}
-
-static void tiltMaze_moveRight(tiltMaze_t *tiltMaze){
-    vector2_t ball_nextPosition = tiltMaze->ball.position;
-    ball_nextPosition.x += 1;
-    
-    if(tiltMaze_checkBallCollision(tiltMaze, ball_nextPosition)){
-       return; 
-    }
-    tiltMaze->ball.position = ball_nextPosition;
-}
-
-static void tiltMaze_moveBall(tiltMaze_t *tiltMaze, input_t *input){
+static void tiltMaze_moveBall(tiltMaze_t *tiltMaze, uint32_t deltaTime_ms){
     button_t *button;
+    input_t *input = tiltMaze->input;
+    tiltMaze->ball.acceleration.x = 0.0f;
+    tiltMaze->ball.acceleration.y = 0.0f;
 
     button = input_getButton(input, BUTTON_UP);
     if(button_isPressed(button)){
-        tiltMaze_moveUp(tiltMaze);
+        tiltMaze->ball.acceleration.y = -20.0f;
     }
     button = input_getButton(input, BUTTON_DOWN);
     if(button_isPressed(button)){
-        tiltMaze_moveDown(tiltMaze);
+        tiltMaze->ball.acceleration.y = 20.0f;
     }
     button = input_getButton(input, BUTTON_LEFT);
     if(button_isPressed(button)){
-        tiltMaze_moveLeft(tiltMaze);
+        tiltMaze->ball.acceleration.x = -20.0f;
     }
     button = input_getButton(input, BUTTON_RIGHT);
     if(button_isPressed(button)){
-        tiltMaze_moveRight(tiltMaze);
+        tiltMaze->ball.acceleration.x = 20.0f;
     }
+
+    floatVector2_t newFloatPosition = tiltMaze_countBallPosition(tiltMaze, deltaTime_ms);
+    vector2_t newPosition;
+    if(newFloatPosition.x > 0.0f){
+        newPosition.x = (int16_t)(newFloatPosition.x + 0.5f);
+    }
+    else{
+        newPosition.x = (int16_t)(newFloatPosition.x - 0.5f);
+    }
+
+    if(newFloatPosition.y > 0.0f){
+        newPosition.y = (int16_t)(newFloatPosition.y + 0.5f);
+    }
+    else{
+        newPosition.y = (int16_t)(newFloatPosition.y - 0.5f);
+    }
+ 
+    
+    if(tiltMaze_checkBallCollision(tiltMaze, newPosition)){
+        tiltMaze->ball.velocity.x = 0.0f;
+        tiltMaze->ball.velocity.y = 0.0f;
+        return; 
+    }
+    tiltMaze->ball.position = newPosition;
+    tiltMaze->ball.floatPosition = newFloatPosition;  
 }
 
 void tiltMaze_init(tiltMaze_t *tiltMaze, input_t *input, assetManager_t *assets, MapID mapId, SpriteID spriteId){
@@ -256,16 +276,20 @@ void tiltMaze_init(tiltMaze_t *tiltMaze, input_t *input, assetManager_t *assets,
     tiltMaze->map = map;
     
     const sprite_t *sprite = assetManager_getSprite(assets, spriteId);
-    tiltMaze->ball.radius = (uint8_t)sprite->size.width;
+    tiltMaze->ball.radius = (uint8_t)(sprite->size.width / 2);
 
     vector2_t ball_startingPosition = tiltMaze_getTileCenterPixel(map->startingTile, map->tileSize_pixels);
     tiltMaze->ball.position.x = ball_startingPosition.x;
     tiltMaze->ball.position.y = ball_startingPosition.y;
 
-    tiltMaze->ball.velocity.x = 0;
-    tiltMaze->ball.velocity.y = 0;
+    tiltMaze->ball.floatPosition.x = ball_startingPosition.x;
+    tiltMaze->ball.floatPosition.y = ball_startingPosition.y;
+    tiltMaze->ball.velocity.x = 0.0f;
+    tiltMaze->ball.velocity.y = 0.0f;
+    tiltMaze->ball.acceleration.x = 0.0f;
+    tiltMaze->ball.acceleration.y = 0.0f;
 }
 
-void tiltMaze_update(tiltMaze_t *tiltMaze, input_t *input){
-    tiltMaze_moveBall(tiltMaze, input);
+void tiltMaze_update(tiltMaze_t *tiltMaze, uint32_t deltaTime_ms){
+    tiltMaze_moveBall(tiltMaze, deltaTime_ms);
 }

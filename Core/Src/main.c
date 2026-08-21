@@ -154,7 +154,7 @@ int main(void)
     currentTime = HAL_GetTick();
     if(currentTime - previousTime > LOOP_PERIOD_MS){
       input_update(&input, LOOP_PERIOD_MS);
-      tiltMaze_update(&tiltMaze, &input);
+      tiltMaze_update(&tiltMaze, LOOP_PERIOD_MS);
       button = input_getButton(&input, BUTTON_UP);
       if(button_wasPressed(button)){
         my_uart_printf(&uart, "buttonUp was pressed\n");
