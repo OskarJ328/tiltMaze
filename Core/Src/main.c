@@ -139,10 +139,7 @@ int main(void)
 
   input_init(&input);
   inputConfig_init(&input);
-  map_t *map = assetManager_getMap(&assets, MAP_FANTASY);
-  const sprite_t *sprite;
-  sprite = assetManager_getSprite(&assets, SPRITE_BALL);
-  tiltMaze_init(&tiltMaze, map,  sprite);
+  tiltMaze_init(&tiltMaze, &input, &assets, MAP_FANTASY, SPRITE_BALL);
   //renderer_drawMovingObject(&renderer, SPRITE_BALL, MAP_FANTASY, tiltMaze.ball.position);
 
 
