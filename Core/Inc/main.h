@@ -57,6 +57,10 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define JOY_X_Pin GPIO_PIN_0
+#define JOY_X_GPIO_Port GPIOC
+#define JOY_Y_Pin GPIO_PIN_1
+#define JOY_Y_GPIO_Port GPIOC
 #define BUTTON_DOWN_Pin GPIO_PIN_10
 #define BUTTON_DOWN_GPIO_Port GPIOB
 #define RESET_Pin GPIO_PIN_7

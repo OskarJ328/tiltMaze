@@ -18,16 +18,10 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "assetManager.h"
-#include "button.h"
+#include "adc.h"
+#include "dma.h"
 #include "i2c.h"
-#include "inputConfig.h"
-#include "map.h"
 #include "spi.h"
-#include "sprite.h"
-#include "stm32l4xx_hal.h"
-#include "stm32l4xx_hal_gpio.h"
-#include "tiltMaze.h"
 #include "usart.h"
 #include "gpio.h"
 
@@ -37,6 +31,7 @@
 #include "input.h"
 #include "my_uart.h"
 #include <stdint.h>
+#include "tiltMaze.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -126,9 +121,11 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_DMA_Init();
   MX_SPI1_Init();
   MX_I2C1_Init();
   MX_USART2_UART_Init();
+  MX_ADC1_Init();
   /* USER CODE BEGIN 2 */
 
   my_uart_init(&uart);
