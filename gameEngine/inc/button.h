@@ -17,19 +17,6 @@ typedef struct{
     bool                wasInitialized;
 }button_t;
 
-
-
-typedef enum{
-    BUTTON_PAUSE,
-    BUTTON_RESUME,
-    BUTTON_CONFIRM,
-    BUTTON_UP,
-    BUTTON_DOWN,
-    BUTTON_LEFT,
-    BUTTON_RIGHT
-}ButtonID;
-
-
 void button_init(button_t *button, GPIO_TypeDef *port, uint16_t pin, GPIO_PinState activeState);
 void button_update(button_t  *button, uint32_t deltaTime_ms);
 bool button_isPressed(button_t *button);

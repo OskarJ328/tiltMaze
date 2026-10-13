@@ -21,6 +21,7 @@
 #include "adc.h"
 #include "dma.h"
 #include "i2c.h"
+#include "joystick.h"
 #include "spi.h"
 #include "usart.h"
 #include "gpio.h"
@@ -29,6 +30,7 @@
 /* USER CODE BEGIN Includes */
 #include "renderer.h"
 #include "input.h"
+#include "inputConfig.h"
 #include "my_uart.h"
 #include <stdint.h>
 #include "tiltMaze.h"
@@ -41,7 +43,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define LOOP_PERIOD_MS 100
+#define LOOP_PERIOD_MS 25
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -141,27 +143,53 @@ int main(void)
 
 
   button_t *button;
+  joystick_t *joystick;
+  floatVector2_t joystick_previousPosition = {0, 0};
+
+
+  joystick = input_getJoystick(&input, LEFT_ANALOG);
+  joystick_invertAxis_x(joystick);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    renderer_drawMovingObject(&renderer, SPRITE_BALL, MAP_FANTASY, tiltMaze.ball.position);
+    //renderer_drawMovingObject(&renderer, SPRITE_BALL, MAP_FANTASY, tiltMaze.ball.position);
     currentTime = HAL_GetTick();
     if(currentTime - previousTime > LOOP_PERIOD_MS){
       input_update(&input, LOOP_PERIOD_MS);
-      tiltMaze_update(&tiltMaze, LOOP_PERIOD_MS);
-      button = input_getButton(&input, BUTTON_UP);
+      //tiltMaze_update(&tiltMaze, LOOP_PERIOD_MS);
+      button = input_getButton(&input, BUTTON_RESUME);
       if(button_wasPressed(button)){
-        my_uart_printf(&uart, "buttonUp was pressed\n");
+        my_uart_printf(&uart, "buttonResume was pressed\n");
       }
 
-      button = input_getButton(&input, BUTTON_DOWN);
+      button = input_getButton(&input, BUTTON_PAUSE);
       if(button_wasPressed(button)){
-        my_uart_printf(&uart, "buttonDown was pressed\n");
+        my_uart_printf(&uart, "buttonPause was pressed\n");
       }
 
+      joystick = input_getJoystick(&input, LEFT_ANALOG);
+
+      floatVector2_t joystick_currentPosition;
+      joystick_currentPosition.x = joystick_getPosition_x(joystick);
+      joystick_currentPosition.y = joystick_getPosition_y(joystick);
+
+      if(joystick_currentPosition.x > 60.0f && joystick_previousPosition.x <= 60.0f){
+        my_uart_printf(&uart, "joystick: LEFT\n");
+      }
+      else if(joystick_currentPosition.x < -60.0f && joystick_previousPosition.x >= -60.0f){
+        my_uart_printf(&uart, "joystick: RIGHT\n");
+      }
+      if(joystick_currentPosition.y > 60.0f && joystick_previousPosition.y <= 60.0f){
+        my_uart_printf(&uart, "joystick: UP\n");
+      }
+      else if(joystick_currentPosition.y < -60.0f && joystick_previousPosition.y >= -60.0f){
+        my_uart_printf(&uart, "joystick: DOWN\n");
+      }
+      joystick_previousPosition.x = joystick_currentPosition.x;
+      joystick_previousPosition.y = joystick_currentPosition.y;
 
 
       previousTime = HAL_GetTick();

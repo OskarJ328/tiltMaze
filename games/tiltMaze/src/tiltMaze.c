@@ -225,22 +225,24 @@ static void tiltMaze_moveBall(tiltMaze_t *tiltMaze, uint32_t deltaTime_ms){
     tiltMaze->ball.acceleration.x = 0.0f;
     tiltMaze->ball.acceleration.y = 0.0f;
 
+    /*
     button = input_getButton(input, BUTTON_UP);
     if(button_isPressed(button)){
-        tiltMaze->ball.acceleration.y = -20.0f;
+        tiltMaze->ball.acceleration.y = -60.0f;
     }
     button = input_getButton(input, BUTTON_DOWN);
     if(button_isPressed(button)){
-        tiltMaze->ball.acceleration.y = 20.0f;
+        tiltMaze->ball.acceleration.y = 60.0f;
     }
     button = input_getButton(input, BUTTON_LEFT);
     if(button_isPressed(button)){
-        tiltMaze->ball.acceleration.x = -20.0f;
+        tiltMaze->ball.acceleration.x = -60.0f;
     }
     button = input_getButton(input, BUTTON_RIGHT);
     if(button_isPressed(button)){
-        tiltMaze->ball.acceleration.x = 20.0f;
+        tiltMaze->ball.acceleration.x = 60.0f;
     }
+        */
 
     floatVector2_t newFloatPosition = tiltMaze_countBallPosition(tiltMaze, deltaTime_ms);
     vector2_t newPosition;
