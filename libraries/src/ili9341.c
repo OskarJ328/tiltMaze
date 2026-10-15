@@ -1,6 +1,11 @@
 #include "ili9341.h"
+#include "images.h"
 #include "my_delay.h"
-
+#include "stm32l4xx_hal_def.h"
+#include "stm32l4xx_hal_gpio.h"
+#include "stm32l4xx_hal_spi.h"
+#include <stdint.h>
+#include <stdbool.h>
 
 #define MADCTL_MY   (1 << 7)
 #define MADCTL_MX   (1 << 6)
@@ -355,11 +360,11 @@ void ILI9341_setRotation(ili9341_t *ili9341, ili9341_rotation_t rotation){
     ILI9341_unselect(ili9341);
 }
 
-void ILI9341_writeChar(ili9341_t *ili9341, uint16_t x0, uint16_t y0, const font_t *font, char ch, uint16_t color, uint16_t bgColor){
+void ILI9341_writeChar(ili9341_t *ili9341, uint16_t x0, uint16_t y0, font_t *font, char ch, uint16_t color, uint16_t bgColor){
     if(x0 + font->width >= ili9341->width || y0 + font->height >= ili9341->height){
         return;
     }
-    if((ch != 10 && ch < 32) || ch > 126){
+    if((ch < 32) || ch > 126){
         return;
     }
     
@@ -383,16 +388,100 @@ void ILI9341_writeChar(ili9341_t *ili9341, uint16_t x0, uint16_t y0, const font_
     ILI9341_unselect(ili9341);
 }
 
-void ILI9341_writeString(ili9341_t *ili9341, uint16_t x0, uint16_t y0, const font_t *font, const char *string, uint16_t stringSize, uint16_t color, uint16_t bgColor){
+void ILI9341_writeString(ili9341_t *ili9341, uint16_t x0, uint16_t y0, font_t *font, char *string, uint16_t stringSize, uint16_t color, uint16_t bgColor){
     uint16_t x_pos = x0;
     uint16_t y_pos = y0;
     for(uint16_t ch = 0; ch < stringSize; ch++){
         if(string[ch] == '\n'){
-            y_pos += font->height + font->lineSpacing;
-            x_pos = x0;
+            if(y_pos + font->height + font->lineSpacing < ili9341->height){
+                y_pos += font->height + font->lineSpacing;
+                x_pos = x0;
+            }
         }
         else{
             ILI9341_writeChar(ili9341, x_pos, y_pos, font, string[ch], color, bgColor);
+            x_pos += font->width + font->charSpacing;
+        }
+    }
+}
+
+void ILI9341_writeCharWithoutBackground(ili9341_t *ili9341, uint16_t x0, uint16_t y0, font_t *font, char ch, uint16_t color){
+    if(x0 + font->width >= ili9341->width || y0 + font->height >= ili9341->height){
+        return;
+    }
+    if((ch < 32) || ch > 126){
+        return;
+    }
+    for(uint16_t y = 0; y < font->height; y++){
+        uint32_t charRow = font->data[(ch - 32) * font->height + y]; 
+        for(uint16_t x = 0; x < font->width; x++){
+            if(1 << (16 - x) & charRow){
+                ILI9341_drawPixel(ili9341, x0 + x, y0 + y, color);
+            }
+        }
+    }
+}
+
+void ILI9341_writeStringWithoutBackground(ili9341_t *ili9341, uint16_t x0, uint16_t y0, font_t *font, char *string, uint16_t stringSize, uint16_t color){
+    uint16_t x_pos = x0;
+    uint16_t y_pos = y0;
+    for(uint16_t ch = 0; ch < stringSize; ch++){
+        if(string[ch] == '\n'){
+            if(y_pos + font->height + font->lineSpacing < ili9341->height){
+                y_pos += font->height + font->lineSpacing;
+                x_pos = x0;
+            }
+        }
+        else{
+            ILI9341_writeCharWithoutBackground(ili9341, x_pos, y_pos, font, string[ch], color);
+            x_pos += font->width + font->charSpacing;
+        }
+    }
+}
+
+void ILI9341_writeChar_2(ili9341_t *ili9341, uint16_t x0, uint16_t y0, const font_t *font, char ch, uint16_t color, image_t *image){
+    if(x0 + font->width >= ili9341->width || y0 + font->height >= ili9341->height){
+        return;
+    }
+    if((ch != 10 && ch < 32) || ch > 126){
+        return;
+    }
+    if(image->Height < font->height || image->Width < font->width){
+        return;
+    }
+    
+    uint8_t data[font->width * 2];
+    ILI9341_select(ili9341);
+    ILI9341_setAddressWindow(ili9341, x0, y0, x0 + font->width - 1, y0 + font->height - 1);
+    for(uint16_t y = 0; y < font->height; y++){
+        uint32_t charRow = font->data[(ch - 32) * font->height + y]; 
+        for(uint16_t x = 0; x < font->width; x++){
+            if(1 << (16 - x) & charRow){
+                data[2 * x]     = MSB(color);
+                data[2 * x + 1] = LSB(color);
+            }
+            else{
+                data[2 * x]     = MSB(image->Buffer[y * image->Width + x]);
+                data[2 * x + 1] = LSB(image->Buffer[y * image->Width + x]);
+            }
+        }
+        ILI9341_writeData(ili9341, data, sizeof(data));
+    }
+    ILI9341_unselect(ili9341);
+}
+
+void ILI9341_writeString_2(ili9341_t *ili9341, uint16_t x0, uint16_t y0, font_t *font, char *string, uint16_t stringSize, uint16_t color, image_t *image){
+    uint16_t x_pos = x0;
+    uint16_t y_pos = y0;
+    for(uint16_t ch = 0; ch < stringSize; ch++){
+        if(string[ch] == '\n'){
+            if(y_pos + font->height + font->lineSpacing < ili9341->height){
+                y_pos += font->height + font->lineSpacing;
+                x_pos = x0;
+            }
+        }
+        else{
+            ILI9341_writeChar_2(ili9341, x_pos, y_pos, font, string[ch], color, image);
             x_pos += font->width + font->charSpacing;
         }
     }
