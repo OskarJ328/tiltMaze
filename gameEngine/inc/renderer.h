@@ -24,3 +24,5 @@ void renderer_drawMap(renderer_t *renderer, MapID id);
 void renderer_drawMovingObject(renderer_t *renderer, SpriteID spriteId, MapID mapId, vector2_t position);
 
 void renderer_drawText(renderer_t *renderer, FontID id, const char *text, vector2_t position, color_t color);
+void renderer_drawText_noBackgroung(renderer_t *renderer, FontID id, const char *text, vector2_t position, color_t color);
+void renderer_drawText_spriteBackground(renderer_t *renderer, FontID fontID, const char *text, vector2_t position, color_t color, SpriteID backgroundID);

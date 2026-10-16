@@ -1,3 +1,9 @@
+#include "assetManager.h"
+#include "basicTypes.h"
+#include "fonts.h"
+#include "ili9341.h"
+#include "images.h"
+#include "sprite.h"
 #define MAX_TILES 4
 #define MAX_TILE_SIZE_PXL 16
 
@@ -76,7 +82,30 @@ void renderer_drawText(renderer_t *renderer, FontID id, const char *text, vector
     ILI9341_writeString(renderer->ili9341, position.x, position.y, font, text, strlen(text), color, renderer->backgroundColor);
 }
 
+void renderer_drawText_noBackgroung(renderer_t *renderer, FontID id, const char *text, vector2_t position, color_t color){
+    const font_t *font = assetManager_getFont(renderer->assets, id);
+    if(font == NULL){
+        return;
+    }
+    ILI9341_writeStringWithoutBackground(renderer->ili9341, position.x, position.y, font, text, strlen(text), color);
+}
 
+void renderer_drawText_spriteBackground(renderer_t *renderer, FontID fontID, const char *text, vector2_t position, color_t color, SpriteID backgroundID){
+    const font_t *font = assetManager_getFont(renderer->assets, fontID);
+    if(font == NULL){
+        return;
+    }
+    const sprite_t *sprite = assetManager_getSprite(renderer->assets, backgroundID);
+    if(sprite == NULL){
+        return;
+    }
+    image_t image = {
+        .Buffer = sprite->data,
+        .Width = sprite->size.width,
+        .Height = sprite->size.height
+    };
+    ILI9341_writeString_2(renderer->ili9341, position.x, position.y, font, text, strlen(text), color, &image);
+}
 
 /*
 1.  licze wpsolrzedne lewego gornego rogu
