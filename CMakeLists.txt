@@ -39,16 +39,20 @@ add_executable(${CMAKE_PROJECT_NAME}
     gameEngine/src/sprite.c
     gameEngine/src/tile.c
     gameEngine/src/input.c
-    gameEngine/src/button.c
     gameEngine/src/imu.c
-    gameEngine/src/joystick.c
     gameEngine/src/inputConfig.c
+    libraries/src/button.c
+    libraries/src/joystick.c
     libraries/src/ili9341.c
     libraries/src/my_delay.c
     libraries/src/fonts.c
     libraries/src/MPU6050.c
     libraries/src/my_uart.c
-    games/tiltMaze/src/tiltMaze.c
+    games/tiltMaze/src/game.c
+    games/tiltMaze/src/menu.c
+    games/tiltMaze/src/gameplay.c
+    games/tiltMaze/src/pauseMenu.c
+    games/tiltMaze/src/gameOver.c
     
 )
 

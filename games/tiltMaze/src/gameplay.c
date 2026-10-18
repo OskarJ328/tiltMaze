@@ -5,20 +5,13 @@
 
 */
 
-#define MAX_VELOCITY 4
-#define MIN_VELOCITY -4
+#include "renderer.h"
+#define MAX_VELOCITY 10
+#define MIN_VELOCITY -10
 
-#include "tiltMaze.h"
-#include "basicTypes.h"
-#include "button.h"
-#include "input.h"
-#include "map.h"
-#include "sprite.h"
-#include "tile.h"
-#include <stdint.h>
+#include "gameplay.h"
 
-
-static TileID tiltMaze_getTileAtPixel(map_t *map, vector2_t pixel){
+static TileID gameplay_getTileAtPixel(map_t *map, vector2_t pixel){
 
     if(pixel.x < 0 || pixel.y < 0){
         return TILE_NULL;
@@ -39,7 +32,7 @@ static TileID tiltMaze_getTileAtPixel(map_t *map, vector2_t pixel){
 /*
 @param tilePosition tile idx in map 
 */
-static vector2_t tiltMaze_getTileCenterPixel(vector2_t tilePosition, Size size){
+static vector2_t gameplay_getTileCenterPixel(vector2_t tilePosition, Size size){
     vector2_t tileCenterPixel;
     tileCenterPixel.x = tilePosition.x * size.width + size.width / 2;
     tileCenterPixel.y = tilePosition.y * size.height + size.height / 2;
@@ -48,7 +41,7 @@ static vector2_t tiltMaze_getTileCenterPixel(vector2_t tilePosition, Size size){
 /*
 @param tilePosition tile idx in map 
 */
-static vector2_t tiltMaze_getTileLeftTopPixel(vector2_t tilePosition, Size size){
+static vector2_t gameplay_getTileLeftTopPixel(vector2_t tilePosition, Size size){
     vector2_t tileLeftTopPixel;
     tileLeftTopPixel.x = tilePosition.x * size.width;
     tileLeftTopPixel.y = tilePosition.y * size.height;
@@ -57,7 +50,7 @@ static vector2_t tiltMaze_getTileLeftTopPixel(vector2_t tilePosition, Size size)
 /*
 @param tilePosition tile idx in map 
 */
-static vector2_t tiltMaze_getTileRightBottomPixel(vector2_t tilePosition, Size size){
+static vector2_t gameplay_getTileRightBottomPixel(vector2_t tilePosition, Size size){
     vector2_t tileRightBottomPixel;
     tileRightBottomPixel.x = tilePosition.x * size.width + size.width - 1;
     tileRightBottomPixel.y = tilePosition.y * size.height + size.height - 1;
@@ -66,7 +59,7 @@ static vector2_t tiltMaze_getTileRightBottomPixel(vector2_t tilePosition, Size s
 /*
 @param objectPosition center pixel of Sprite 
 */
-static vector2_t tiltMaze_getObjectLeftTopPixel(vector2_t objectPosition, Size size){
+static vector2_t gameplay_getObjectLeftTopPixel(vector2_t objectPosition, Size size){
     vector2_t objectLeftTopPixel;
     objectLeftTopPixel.x = objectPosition.x - size.width / 2;
     objectLeftTopPixel.y = objectPosition.y - size.height / 2;
@@ -75,7 +68,7 @@ static vector2_t tiltMaze_getObjectLeftTopPixel(vector2_t objectPosition, Size s
 /*
 @param objectPosition center pixel of Sprite 
 */
-static vector2_t tiltMaze_getObjectRightBottomPixel(vector2_t objectPosition, Size size){
+static vector2_t gameplay_getObjectRightBottomPixel(vector2_t objectPosition, Size size){
     vector2_t objectRightBottomPixel;
     objectRightBottomPixel.x = objectPosition.x + (size.width - 1) / 2;
     objectRightBottomPixel.y = objectPosition.y + (size.height - 1) / 2;
@@ -85,7 +78,7 @@ static vector2_t tiltMaze_getObjectRightBottomPixel(vector2_t objectPosition, Si
 /*
 @param objectPosition center pixel of Sprite 
 */
-static vector2_t tiltMaze_getObjectLeftBottomPixel(vector2_t objectPosition, Size size){
+static vector2_t gameplay_getObjectLeftBottomPixel(vector2_t objectPosition, Size size){
     vector2_t objectLeftBottomPixel;
     objectLeftBottomPixel.x = objectPosition.x - size.width / 2;
     objectLeftBottomPixel.y = objectPosition.y + (size.height - 1) / 2;
@@ -94,14 +87,14 @@ static vector2_t tiltMaze_getObjectLeftBottomPixel(vector2_t objectPosition, Siz
 /*
 @param objectPosition center pixel of Sprite 
 */
-static vector2_t tiltMaze_getObjectRightTopPixel(vector2_t objectPosition, Size size){
+static vector2_t gameplay_getObjectRightTopPixel(vector2_t objectPosition, Size size){
     vector2_t objectRightTopPixel;
     objectRightTopPixel.x = objectPosition.x + (size.width - 1) / 2;
     objectRightTopPixel.y = objectPosition.y - size.height / 2;
     return objectRightTopPixel;
 }
 
-static rectangle_t tiltMaze_getTileRect(vector2_t tilePosition, Size tileSize){
+static rectangle_t gameplay_getTileRect(vector2_t tilePosition, Size tileSize){
     rectangle_t rect;
 
     rect.position.x = tilePosition.x * tileSize.width;
@@ -112,7 +105,7 @@ static rectangle_t tiltMaze_getTileRect(vector2_t tilePosition, Size tileSize){
     return rect;
 }
 
-static bool tiltMaze_isBallColidingWithRect(vector2_t ballCenter, uint8_t radius, rectangle_t rect){
+static bool gameplay_isBallColidingWithRect(vector2_t ballCenter, uint8_t radius, rectangle_t rect){
     vector2_t closestPoint;
     
     // jesli srodek kulki znajduje sie na lewo od lewej sciany prostokata to musi to byc najblizsza sciana pionowa.
@@ -142,21 +135,21 @@ static bool tiltMaze_isBallColidingWithRect(vector2_t ballCenter, uint8_t radius
     int32_t dx = ballCenter.x - closestPoint.x;
     int32_t dy = ballCenter.y - closestPoint.y;
     
-    int32_t distanceSquared = dx *dx + dy * dy;
+    int32_t distanceSquared = dx * dx + dy * dy;
     int32_t radiusSquared = radius * radius;
 
     return distanceSquared <= radiusSquared;
 }
 
-static bool tiltMaze_checkBallCollision(tiltMaze_t *tiltMaze, vector2_t nextPosition){
-    uint8_t radius = tiltMaze->ball.radius;
+static bool gameplay_checkBallCollision(gameplay_t *gameplay, vector2_t nextPosition){
+    uint8_t radius = gameplay->ball.radius;
 
     int32_t left    = nextPosition.x - radius;
     int32_t right   = nextPosition.x + (radius * 2 - 1) / 2;
-    int32_t top      = nextPosition.y - radius;
-    int32_t bottom    = nextPosition.y + (radius * 2 - 1) / 2;
+    int32_t top     = nextPosition.y - radius;
+    int32_t bottom  = nextPosition.y + (radius * 2 - 1) / 2;
     
-    Size tileSize = tiltMaze->map->tileSize_pixels;
+    Size tileSize = gameplay->map->tileSize_pixels;
 
     vector2_t firstTile;
     firstTile.x = left / tileSize.width;
@@ -168,21 +161,22 @@ static bool tiltMaze_checkBallCollision(tiltMaze_t *tiltMaze, vector2_t nextPosi
 
     for(int16_t y = firstTile.y; y <= lastTile.y; y++){
         for(int16_t x = firstTile.x; x <= lastTile.x; x++){
-            if(x < 0 || x >= tiltMaze->map->size_tiles.width){
+            if(x < 0 || x >= gameplay->map->size_tiles.width){
                 continue;
             }
-            if(y < 0 || y >= tiltMaze->map->size_tiles.height){
+            if(y < 0 || y >= gameplay->map->size_tiles.height){
                 continue;
             }
-            uint16_t tileIdx = y * tiltMaze->map->size_tiles.width + x;
-            TileID tile = tiltMaze->map->tileIds[tileIdx];
-
-            if(tile != TILE_WALL){
+            uint16_t tileIdx = y * gameplay->map->size_tiles.width + x;
+            TileType tileID = gameplay->map->tileIds[tileIdx];
+            const tile_t *tile = assetManager_getTile(gameplay->assets, tileID);
+            
+            if(tile->type != TILE_TYPE_WALL){
                 continue;
             }
             vector2_t tilePosition = {x, y};
-            rectangle_t wallRect = tiltMaze_getTileRect(tilePosition, tileSize); 
-            if(tiltMaze_isBallColidingWithRect(nextPosition, radius, wallRect)){
+            rectangle_t wallRect = gameplay_getTileRect(tilePosition, tileSize); 
+            if(gameplay_isBallColidingWithRect(nextPosition, radius, wallRect)){
                 return true;
             }
         }
@@ -190,19 +184,28 @@ static bool tiltMaze_checkBallCollision(tiltMaze_t *tiltMaze, vector2_t nextPosi
     return false;
 }
 
-static floatVector2_t tiltMaze_countBallPosition(tiltMaze_t *tiltMaze, uint32_t deltaTime_ms){
+static bool gameplay_isBallInHole(gameplay_t *gameplay, vector2_t ballPosition){
+    TileID tileID = gameplay_getTileAtPixel(gameplay->map, ballPosition);
+    const tile_t *tile = assetManager_getTile(gameplay->assets, tileID);
+    if(tile->type == TILE_TYPE_HOLE){
+        return true;
+    }
+    return false;
+}
+
+static floatVector2_t gameplay_countBallPosition(gameplay_t *gameplay, uint32_t deltaTime_ms){
     float dt_s = deltaTime_ms / 1000.0f;
     
-    floatVector2_t newVelocity = tiltMaze->ball.velocity;
-    newVelocity.x += tiltMaze->ball.acceleration.x * dt_s;
-    newVelocity.y += tiltMaze->ball.acceleration.y * dt_s;
+    floatVector2_t newVelocity = gameplay->ball.velocity;
+    newVelocity.x += gameplay->ball.acceleration.x * dt_s;
+    newVelocity.y += gameplay->ball.acceleration.y * dt_s;
     if(newVelocity.x > MAX_VELOCITY){
         newVelocity.x = MAX_VELOCITY;
     }
     else if(newVelocity.x < MIN_VELOCITY){
         newVelocity.x = MIN_VELOCITY;
     }
-    tiltMaze->ball.velocity.x = newVelocity.x;
+    gameplay->ball.velocity.x = newVelocity.x;
 
     if(newVelocity.y > MAX_VELOCITY){
         newVelocity.y = MAX_VELOCITY;
@@ -210,41 +213,60 @@ static floatVector2_t tiltMaze_countBallPosition(tiltMaze_t *tiltMaze, uint32_t 
     else if(newVelocity.y < MIN_VELOCITY){
         newVelocity.y = MIN_VELOCITY;
     }
-    tiltMaze->ball.velocity.y = newVelocity.y;
+    gameplay->ball.velocity.y = newVelocity.y;
 
-    floatVector2_t newFloatPosition = tiltMaze->ball.floatPosition;
-    newFloatPosition.x += tiltMaze->ball.velocity.x * dt_s;
-    newFloatPosition.y += tiltMaze->ball.velocity.y * dt_s;
+    floatVector2_t newFloatPosition = gameplay->ball.floatPosition;
+    newFloatPosition.x += gameplay->ball.velocity.x * dt_s;
+    newFloatPosition.y += gameplay->ball.velocity.y * dt_s;
 
     return newFloatPosition;
 }
 
-static void tiltMaze_moveBall(tiltMaze_t *tiltMaze, uint32_t deltaTime_ms){
-    button_t *button;
-    input_t *input = tiltMaze->input;
-    tiltMaze->ball.acceleration.x = 0.0f;
-    tiltMaze->ball.acceleration.y = 0.0f;
+    void gameplay_setBallAtStartingPosition(ball_t *ball, map_t *map){
+    vector2_t ball_startingPosition = gameplay_getTileCenterPixel(map->startingTile, map->tileSize_pixels);
+    ball->position.x = ball_startingPosition.x;
+    ball->position.y = ball_startingPosition.y;
+
+    ball->floatPosition.x = ball_startingPosition.x;
+    ball->floatPosition.y = ball_startingPosition.y;
+    ball->velocity.x = 0.0f;
+    ball->velocity.y = 0.0f;
+    ball->acceleration.x = 0.0f;
+    ball->acceleration.y = 0.0f;
+}
+
+static gameplayAction_t gameplay_moveBall(gameplay_t *gameplay, uint32_t deltaTime_ms){
+    joystick_t *joystick;
+    input_t *input = gameplay->input;
+    gameplay->ball.acceleration.x = 0.0f;
+    gameplay->ball.acceleration.y = 0.0f;
 
     /*
     button = input_getButton(input, BUTTON_UP);
     if(button_isPressed(button)){
-        tiltMaze->ball.acceleration.y = -60.0f;
+        gameplay->ball.acceleration.y = -60.0f;
     }
     button = input_getButton(input, BUTTON_DOWN);
     if(button_isPressed(button)){
-        tiltMaze->ball.acceleration.y = 60.0f;
+        gameplay->ball.acceleration.y = 60.0f;
     }
     button = input_getButton(input, BUTTON_LEFT);
     if(button_isPressed(button)){
-        tiltMaze->ball.acceleration.x = -60.0f;
+        gameplay->ball.acceleration.x = -60.0f;
     }
     button = input_getButton(input, BUTTON_RIGHT);
     if(button_isPressed(button)){
-        tiltMaze->ball.acceleration.x = 60.0f;
+        gameplay->ball.acceleration.x = 60.0f;
     }
         */
+    joystick = input_getJoystick(input, LEFT_ANALOG);
+    
+    gameplay->ball.acceleration.x = joystick_getPosition_x(joystick) / 10;
+    gameplay->ball.acceleration.y = joystick_getPosition_y(joystick) / 10;
 
-    floatVector2_t newFloatPosition = tiltMaze_countBallPosition(tiltMaze, deltaTime_ms);
+    
+
+    floatVector2_t newFloatPosition = gameplay_countBallPosition(gameplay, deltaTime_ms);
     vector2_t newPosition;
     if(newFloatPosition.x > 0.0f){
         newPosition.x = (int16_t)(newFloatPosition.x + 0.5f);
@@ -261,37 +283,42 @@ static void tiltMaze_moveBall(tiltMaze_t *tiltMaze, uint32_t deltaTime_ms){
     }
  
     
-    if(tiltMaze_checkBallCollision(tiltMaze, newPosition)){
-        tiltMaze->ball.velocity.x = 0.0f;
-        tiltMaze->ball.velocity.y = 0.0f;
-        return; 
+    if(gameplay_checkBallCollision(gameplay, newPosition)){
+        gameplay->ball.velocity.x = 0.0f;
+        gameplay->ball.velocity.y = 0.0f;
+        return GAMEPLAY_ACTION_NONE; 
     }
-    tiltMaze->ball.position = newPosition;
-    tiltMaze->ball.floatPosition = newFloatPosition;  
+    if(gameplay_isBallInHole(gameplay, newPosition)){
+        //gameplay_setBallAtStartingPosition(&gameplay->ball, gameplay->map);
+        return GAMEPLAY_ACTION_GAME_OVER;
+    }
+    gameplay->ball.position = newPosition;
+    gameplay->ball.floatPosition = newFloatPosition;
+    return GAMEPLAY_ACTION_NONE;  
 }
 
-void tiltMaze_init(tiltMaze_t *tiltMaze, input_t *input, assetManager_t *assets, MapID mapId, SpriteID spriteId){
-    tiltMaze->assets = assets;
-    tiltMaze->input = input;
+void gameplay_init(gameplay_t *gameplay, input_t *input, assetManager_t *assets, MapID mapId, SpriteID spriteId){
+    gameplay->assets = assets;
+    gameplay->input = input;
 
     map_t *map = assetManager_getMap(assets, mapId);
-    tiltMaze->map = map;
+    gameplay->map = map;
     
     const sprite_t *sprite = assetManager_getSprite(assets, spriteId);
-    tiltMaze->ball.radius = (uint8_t)(sprite->size.width / 2);
+    gameplay->ball.radius = (uint8_t)(sprite->size.width / 2);
+    gameplay->ball.id = spriteId;
 
-    vector2_t ball_startingPosition = tiltMaze_getTileCenterPixel(map->startingTile, map->tileSize_pixels);
-    tiltMaze->ball.position.x = ball_startingPosition.x;
-    tiltMaze->ball.position.y = ball_startingPosition.y;
-
-    tiltMaze->ball.floatPosition.x = ball_startingPosition.x;
-    tiltMaze->ball.floatPosition.y = ball_startingPosition.y;
-    tiltMaze->ball.velocity.x = 0.0f;
-    tiltMaze->ball.velocity.y = 0.0f;
-    tiltMaze->ball.acceleration.x = 0.0f;
-    tiltMaze->ball.acceleration.y = 0.0f;
+    gameplay_setBallAtStartingPosition(&gameplay->ball, gameplay->map);
 }
 
-void tiltMaze_update(tiltMaze_t *tiltMaze, uint32_t deltaTime_ms){
-    tiltMaze_moveBall(tiltMaze, deltaTime_ms);
+void gameplay_start(gameplay_t *gameplay){
+    gameplay_setBallAtStartingPosition(&gameplay->ball, gameplay->map);
+}
+
+gameplayAction_t gameplay_update(gameplay_t *gameplay, uint32_t deltaTime_ms){
+    return gameplay_moveBall(gameplay, deltaTime_ms);
+}
+
+void gameplay_render(gameplay_t *gameplay, renderer_t *renderer){
+    renderer_drawMovingObject(renderer, gameplay->ball.id, gameplay->map->id, gameplay->ball.position);
 }

@@ -19,21 +19,18 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "adc.h"
+#include "basicTypes.h"
 #include "dma.h"
+#include "game.h"
 #include "i2c.h"
-#include "joystick.h"
-#include "spi.h"
-#include "usart.h"
-#include "gpio.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "renderer.h"
-#include "input.h"
 #include "inputConfig.h"
 #include "my_uart.h"
-#include <stdint.h>
-#include "tiltMaze.h"
+#include "gameplay.h"
+#include <stdio.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -43,7 +40,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define LOOP_PERIOD_MS 25
+#define LOOP_PERIOD_MS 10
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -76,10 +73,17 @@ button_t pauseButton;
 uart_t uart = {
   .uart_handle = &huart2
 };
-tiltMaze_t tiltMaze;
+game_t game;
 
 uint32_t currentTime = 0;
 uint32_t previousTime = 0;
+
+uint16_t last50fps[1000];
+uint16_t fpsIdx = 0;
+uint32_t lastFpsTime = 0;
+
+uint32_t beforeLoopTime_ms = 0;
+uint32_t afterLoopTime_ms = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -134,12 +138,10 @@ int main(void)
 
   assetManager_init(&assets);
   renderer_init(&renderer, &ili, &assets, ILI9341_WHITE);
-  renderer_drawMap(&renderer, MAP_FANTASY);
 
   input_init(&input);
   inputConfig_init(&input);
-  tiltMaze_init(&tiltMaze, &input, &assets, MAP_FANTASY, SPRITE_BALL);
-  //renderer_drawMovingObject(&renderer, SPRITE_BALL, MAP_FANTASY, tiltMaze.ball.position);
+  game_init(&game, &input, &renderer, &assets);
 
 
   button_t *button;
@@ -149,17 +151,19 @@ int main(void)
 
   joystick = input_getJoystick(&input, LEFT_ANALOG);
   joystick_invertAxis_x(joystick);
+  beforeLoopTime_ms = HAL_GetTick();
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    //renderer_drawMovingObject(&renderer, SPRITE_BALL, MAP_FANTASY, tiltMaze.ball.position);
     currentTime = HAL_GetTick();
     if(currentTime - previousTime > LOOP_PERIOD_MS){
       input_update(&input, LOOP_PERIOD_MS);
-      //tiltMaze_update(&tiltMaze, LOOP_PERIOD_MS);
+      game_update(&game, LOOP_PERIOD_MS);
+      game_render(&game);
+      /*
       button = input_getButton(&input, BUTTON_RESUME);
       if(button_wasPressed(button)){
         my_uart_printf(&uart, "buttonResume was pressed\n");
@@ -190,14 +194,40 @@ int main(void)
       }
       joystick_previousPosition.x = joystick_currentPosition.x;
       joystick_previousPosition.y = joystick_currentPosition.y;
-
+      */
 
       previousTime = HAL_GetTick();
     }
+    afterLoopTime_ms = HAL_GetTick();
     
-
-
-
+    uint16_t fps;
+    if(afterLoopTime_ms == beforeLoopTime_ms){
+      fps = 999;
+    }
+    else{
+      fps = 1000 / (afterLoopTime_ms - beforeLoopTime_ms);
+      if(fps > 999){
+        fps = 999;
+      }
+    }
+    last50fps[fpsIdx] = fps;
+     
+    if(fpsIdx == ARRAY_SIZE(last50fps) - 1){
+      uint32_t sum = 0;
+      for(int idx = 0; idx <= fpsIdx; idx++){
+        sum += last50fps[idx];
+      }
+      uint16_t avgFps = sum / ARRAY_SIZE(last50fps);
+      char text[10];
+      sprintf(text, "%d fps", avgFps);
+      vector2_t pos = {0, 0};
+      renderer_drawText(&renderer, FONT_BIG, text, pos, ILI9341_BLACK);
+      fpsIdx = 0;
+    }
+    else{
+      fpsIdx++;
+    }
+    beforeLoopTime_ms = HAL_GetTick();
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
