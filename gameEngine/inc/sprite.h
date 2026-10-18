@@ -5,6 +5,7 @@
 typedef enum{
     SPRITE_WALL,  
     SPRITE_FLOOR,
+    SPRITE_HOLE,
 
     SPRITE_PLAYER,
     SPRITE_BALL,
