@@ -15,6 +15,7 @@ typedef struct {
     const TileID *tileIds;
     vector2_t offset;
     vector2_t startingTile;
+    MapID id;
 }map_t;
 
 void map_CountOffset(map_t *map, uint16_t screenWidth, uint16_t screenHeight);
