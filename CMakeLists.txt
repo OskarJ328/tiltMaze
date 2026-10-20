@@ -53,6 +53,7 @@ add_executable(${CMAKE_PROJECT_NAME}
     games/tiltMaze/src/gameplay.c
     games/tiltMaze/src/pauseMenu.c
     games/tiltMaze/src/gameOver.c
+    games/tiltMaze/src/ui.c
     
 )
 
