@@ -2,8 +2,10 @@
 #include "assetManager.h"
 #include "gameOver.h"
 #include "gameplay.h"
+#include "ili9341.h"
 #include "input.h"
 #include "map.h"
+#include "menu.h"
 #include "renderer.h"
 #include "sprite.h"
 
@@ -13,21 +15,29 @@ void game_init(game_t *game, input_t *input, renderer_t *renderer, assetManager_
     game->menu.input = input;
     game->gameplay.input = input;
     game->pauseMenu.input = input;
+    game->mapID = MAP_FANTASY;
     game->state = GAME_STATE_MENU;
 
-    gameplay_init(&game->gameplay, input, assets, MAP_FANTASY, SPRITE_BALL);
-    gameOver_init(&game->gameOver, input, assets, MAP_FANTASY);
-    renderer_drawMap(renderer, MAP_FANTASY);
+    gameplay_init(&game->gameplay, input, assets, game->mapID, SPRITE_BALL);
+    gameOver_init(&game->gameOver, input, assets, game->mapID);
+    //renderer_drawMap(renderer, MAP_FANTASY);
 }
 
 void game_update(game_t *game, uint32_t deltaTime_ms){
     gameplayAction_t gameplayAction;
+    menuAction_t menuAction;
+    gameOverAction_t gameOverAction;
     switch(game->state){
     case GAME_STATE_MENU:
+        menuAction = menu_update(&game->menu);
+        if(menuAction == MENU_ACTION_NEW_GAME){
+            game->state = GAME_STATE_LAUNCHING;
+        }
+        break;
+    case GAME_STATE_LAUNCHING:
         gameplay_start(&game->gameplay);
         game->state = GAME_STATE_PLAYING;
         break;
-
     case GAME_STATE_PLAYING:
         gameplayAction = gameplay_update(&game->gameplay, deltaTime_ms);
         if(gameplayAction == GAMEPLAY_ACTION_GAME_OVER){
@@ -35,7 +45,10 @@ void game_update(game_t *game, uint32_t deltaTime_ms){
         }
         break;
     case GAME_STATE_GAME_OVER:
-        game->state = GAME_STATE_MENU;
+        gameOverAction = gameOver_update(&game->gameOver);
+        if(gameOverAction == GAME_OVER_ACTION_RESUME){
+            game->state = GAME_STATE_MENU;
+        }
         break;
     default:
         break;
@@ -43,6 +56,13 @@ void game_update(game_t *game, uint32_t deltaTime_ms){
 }
 void game_render(game_t *game){
     switch (game->state){
+    case GAME_STATE_MENU:
+        menu_render(&game->menu, game->renderer);
+        break;
+    case GAME_STATE_LAUNCHING:
+        renderer_clear(game->renderer, ILI9341_WHITE);
+        renderer_drawMap(game->renderer, game->mapID);
+        break;
     case GAME_STATE_PLAYING:
         gameplay_render(&game->gameplay, game->renderer);
         break;

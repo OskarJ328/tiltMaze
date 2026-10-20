@@ -3,6 +3,7 @@
 #include "gameOver.h"
 #include "gameplay.h"
 #include "input.h"
+#include "map.h"
 #include "menu.h"
 #include "pauseMenu.h"
 #include "renderer.h"
@@ -12,6 +13,7 @@
 
 typedef enum{
     GAME_STATE_MENU,
+    GAME_STATE_LAUNCHING,
     GAME_STATE_PLAYING,
     GAME_STATE_PAUSED,
     GAME_STATE_LEVEL_SELECT,
@@ -31,6 +33,7 @@ typedef struct{
     input_t *input;
     renderer_t *renderer;
     assetManager_t *assets;
+    MapID mapID;
 }game_t;
 
 void game_init(game_t *game, input_t *input, renderer_t *renderer, assetManager_t *assets);
