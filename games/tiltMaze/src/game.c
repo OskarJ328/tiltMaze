@@ -12,12 +12,10 @@
 void game_init(game_t *game, input_t *input, renderer_t *renderer, assetManager_t *assets){
     game->input = input;
     game->renderer = renderer;
-    game->menu.input = input;
-    game->gameplay.input = input;
-    game->pauseMenu.input = input;
     game->mapID = MAP_FANTASY;
     game->state = GAME_STATE_MENU;
 
+    menu_init(&game->menu, input, assets);
     gameplay_init(&game->gameplay, input, assets, game->mapID, SPRITE_BALL);
     gameOver_init(&game->gameOver, input, assets, game->mapID);
     //renderer_drawMap(renderer, MAP_FANTASY);

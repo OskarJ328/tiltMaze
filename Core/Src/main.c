@@ -21,15 +21,18 @@
 #include "adc.h"
 #include "basicTypes.h"
 #include "dma.h"
+#include "fonts.h"
 #include "game.h"
 #include "i2c.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "ili9341.h"
 #include "renderer.h"
 #include "inputConfig.h"
 #include "my_uart.h"
 #include "gameplay.h"
+#include "stm32l4xx_hal.h"
 #include <stdio.h>
 /* USER CODE END Includes */
 
@@ -78,12 +81,10 @@ game_t game;
 uint32_t currentTime = 0;
 uint32_t previousTime = 0;
 
-uint16_t last50fps[1000];
+uint16_t last50fps[20];
 uint16_t fpsIdx = 0;
 uint32_t lastFpsTime = 0;
 
-uint32_t beforeLoopTime_ms = 0;
-uint32_t afterLoopTime_ms = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -151,7 +152,6 @@ int main(void)
 
   joystick = input_getJoystick(&input, LEFT_ANALOG);
   joystick_invertAxis_x(joystick);
-  beforeLoopTime_ms = HAL_GetTick();
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -196,38 +196,37 @@ int main(void)
       joystick_previousPosition.y = joystick_currentPosition.y;
       */
 
-      previousTime = HAL_GetTick();
-    }
-    afterLoopTime_ms = HAL_GetTick();
-    
-    uint16_t fps;
-    if(afterLoopTime_ms == beforeLoopTime_ms){
-      fps = 999;
-    }
-    else{
-      fps = 1000 / (afterLoopTime_ms - beforeLoopTime_ms);
-      if(fps > 999){
+      lastFpsTime = HAL_GetTick();
+      uint16_t fps;
+      if(lastFpsTime == previousTime){
         fps = 999;
       }
-    }
-    last50fps[fpsIdx] = fps;
-     
-    if(fpsIdx == ARRAY_SIZE(last50fps) - 1){
-      uint32_t sum = 0;
-      for(int idx = 0; idx <= fpsIdx; idx++){
-        sum += last50fps[idx];
+      else{
+        fps = 1000 / (lastFpsTime - previousTime);
+        if(fps > 999){
+          fps = 999;
+        }
       }
-      uint16_t avgFps = sum / ARRAY_SIZE(last50fps);
-      char text[10];
-      sprintf(text, "%d fps", avgFps);
-      vector2_t pos = {0, 0};
-      renderer_drawText(&renderer, FONT_BIG, text, pos, ILI9341_BLACK);
-      fpsIdx = 0;
+      last50fps[fpsIdx] = fps;
+      
+      if(fpsIdx == ARRAY_SIZE(last50fps) - 1){
+        uint32_t sum = 0;
+        for(int idx = 0; idx <= fpsIdx; idx++){
+          sum += last50fps[idx];
+        }
+        uint16_t avgFps = sum / ARRAY_SIZE(last50fps);
+        char text[10];
+        sprintf(text, "%d fps", avgFps);
+        vector2_t pos = {0, 0};
+        renderer_drawText_noBackgroung(&renderer, FONT_GOTH, text, pos, ILI9341_BLACK);
+        fpsIdx = 0;
+      }
+      else{
+        fpsIdx++;
+      }
+
+      previousTime = HAL_GetTick();
     }
-    else{
-      fpsIdx++;
-    }
-    beforeLoopTime_ms = HAL_GetTick();
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
