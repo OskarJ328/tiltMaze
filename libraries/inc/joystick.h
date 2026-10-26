@@ -14,6 +14,10 @@ typedef struct{
 
     float x;
     float y;
+
+    float previous_x;
+    float previous_y;
+
     bool wasInitialized;
     int8_t directionSign_x;
     int8_t directionSign_y;
@@ -29,3 +33,7 @@ void joystick_setDeadZone_x(joystick_t *joystick, float deadZone);
 void joystick_setDeadZone_y(joystick_t *joystick, float deadZone);
 float joystick_getPosition_x(joystick_t *joystick);
 float joystick_getPosition_y(joystick_t *joystick);
+bool joystick_isBeyondThreshold_x(joystick_t *joystick, float threshold);
+bool joystick_isBeyondThreshold_y(joystick_t *joystick, float threshold);
+bool joystick_hasCrossedThreshold_x(joystick_t *joystick, float threshold);
+bool joystick_hasCrossedThreshold_y(joystick_t *joystick, float threshold);

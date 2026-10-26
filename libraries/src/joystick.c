@@ -39,6 +39,12 @@ void joystick_init(joystick_t *joystick, ADC_HandleTypeDef *hadc, volatile uint1
         joystick->wasInitialized = false;
         return;
     };
+
+    joystick->x = 0.0f;
+    joystick->y = 0.0f;
+    joystick->previous_x = 0.0f;
+    joystick->previous_y = 0.0f;
+
     joystick->wasInitialized = true;
 }
 
@@ -58,6 +64,9 @@ static float joystick_calculatePosition(uint16_t adcVal, uint16_t adcResolution,
 
 void joystick_update(joystick_t *joystick){
     if(joystick->wasInitialized){
+        joystick->previous_x = joystick->x;
+        joystick->previous_y = joystick->y;
+
         joystick->x = joystick->directionSign_x * joystick_calculatePosition(joystick->adc_dataPtr[0], joystick->adc_resolution, joystick->deadZone_x);
         joystick->y = joystick->directionSign_y * joystick_calculatePosition(joystick->adc_dataPtr[1], joystick->adc_resolution, joystick->deadZone_y);
     }
@@ -98,3 +107,54 @@ float joystick_getPosition_y(joystick_t *joystick){
     return 0;
 }
 
+bool joystick_isBeyondThreshold_x(joystick_t *joystick, float threshold){
+    if(joystick->wasInitialized){
+        if(threshold < 0.0){
+            return joystick->x < threshold;
+        }
+        return joystick->x > threshold;
+    }
+    return false;
+}
+
+bool joystick_isBeyondThreshold_y(joystick_t *joystick, float threshold){
+    if(joystick->wasInitialized){
+        if(threshold < 0.0){
+            return joystick->y < threshold;
+        }
+        return joystick->y > threshold;
+    }
+    return false;
+}
+
+bool joystick_hasCrossedThreshold_x(joystick_t *joystick, float threshold){
+    if(joystick->wasInitialized){
+        if(threshold < 0.0){
+            if((joystick->previous_x > threshold) && (joystick->x < threshold)){
+                return true;
+            }
+        }
+        else{
+            if((joystick->previous_x < threshold) && (joystick->x > threshold)){
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+bool joystick_hasCrossedThreshold_y(joystick_t *joystick, float threshold){
+    if(joystick->wasInitialized){
+        if(threshold < 0.0){
+            if((joystick->previous_y > threshold) && (joystick->y < threshold)){
+                return true;
+            }
+        }
+        else{
+            if((joystick->previous_y < threshold) && (joystick->y > threshold)){
+                return true;
+            }
+        }
+    }
+    return false;
+}
