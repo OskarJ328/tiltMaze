@@ -1,7 +1,9 @@
 #pragma once
 
+#include "basicTypes.h"
 #include "ili9341.h"
 #include "assetManager.h"
+#include "sprite.h"
 
 
 
@@ -22,6 +24,7 @@ void renderer_drawSprite(renderer_t *renderer, SpriteID id, vector2_t position);
 void renderer_drawTile(renderer_t *renderer, TileID id, vector2_t position);
 void renderer_drawMap(renderer_t *renderer, MapID id);
 void renderer_drawMovingObject(renderer_t *renderer, SpriteID spriteId, MapID mapId, vector2_t position);
+void renderer_drawSpriteWithAlphaMask(renderer_t *renderer, SpriteID id, vector2_t position);
 
 void renderer_drawText(renderer_t *renderer, FontID id, const char *text, vector2_t position, color_t color);
 void renderer_drawText_noBackgroung(renderer_t *renderer, FontID id, const char *text, vector2_t position, color_t color);

@@ -4,6 +4,7 @@
 #include "ili9341.h"
 #include "images.h"
 #include "sprite.h"
+#include <stdint.h>
 #define MAX_TILES 4
 #define MAX_TILE_SIZE_PXL 16
 
@@ -70,6 +71,31 @@ void renderer_drawMap(renderer_t *renderer, MapID id){
             position.y = map->offset.y + y * map->tileSize_pixels.height;
             uint16_t mapIdx = y * map->size_tiles.width + x;
             renderer_drawTile(renderer, map->tileIds[mapIdx], position);
+        }
+    }
+}
+
+void renderer_drawSpriteWithAlphaMask(renderer_t *renderer, SpriteID id, vector2_t position){
+    const sprite_t *sprite = assetManager_getSprite(renderer->assets, id);
+    if(sprite == NULL){
+        return;
+    }
+    if(sprite->mask == NULL){
+        return;
+    }
+    for(uint8_t y = 0; y < sprite->size.height; y++){
+        for(uint8_t x = 0; x < sprite->size.width; x++){
+            if(sprite->mask[y] & (1 << (31 - x))){
+                uint16_t idx = x + y * sprite->size.width;
+                color_t pxl = sprite->data[idx];
+
+                vector2_t currentPosition;
+                currentPosition.x = position.x + x;
+                currentPosition.y = position.y + y;
+
+                renderer_drawPixel(renderer, currentPosition, pxl);
+            }
+            
         }
     }
 }
