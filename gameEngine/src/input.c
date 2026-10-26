@@ -6,7 +6,7 @@
 #include <stdint.h>
 
 
-static button_t buttons[2];
+static button_t buttons[6];
 
 static joystick_t joysticks[1];
 static uint16_t joysticks_data[2];

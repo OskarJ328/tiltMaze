@@ -10,7 +10,8 @@ typedef struct{
     assetManager_t *assets;
     
     map_t *map;
-    bool wasScreenCleared;
+
+    bool wasRendered;
 }gameOver_t;
 
 typedef enum{

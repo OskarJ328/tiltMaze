@@ -15,28 +15,30 @@ void gameOver_init(gameOver_t *gameOver, input_t *input, assetManager_t *assets,
     gameOver->assets = assets;
     map_t *map = assetManager_getMap(assets, mapID);
     gameOver->map = map;
-    gameOver->wasScreenCleared = false;
+    gameOver->wasRendered = false;
 }
 
 gameOverAction_t gameOver_update(gameOver_t *gameOver){
-    button_t *button = input_getButton(gameOver->input, BUTTON_RESUME);
+    button_t *button = input_getButton(gameOver->input, BUTTON_CONFIRM);
     if(button_wasPressed(button)){
-        gameOver->wasScreenCleared = false;
+        gameOver->wasRendered = false;
         return GAME_OVER_ACTION_RESUME;
     }
     return GAME_OVER_ACTION_NONE;
 }
 
 void gameOver_render(gameOver_t *gameOver, renderer_t *renderer){
-    if(!gameOver->wasScreenCleared){
+    if(!gameOver->wasRendered){
         renderer_clear(renderer, ILI9341_WHITE);
-        gameOver->wasScreenCleared = true;
-    }
-    rectangle_t screen;
-    screen.position.x = 0;
-    screen.position.y = 0;
-    screen.size.width = renderer->ili9341->width;
-    screen.size.height = renderer->ili9341->height;
+        
+        rectangle_t screen;
+        screen.position.x = 0;
+        screen.position.y = 0;
+        screen.size.width = renderer->ili9341->width;
+        screen.size.height = renderer->ili9341->height;
     
-    ui_drawTextInRectangle(renderer, screen, FONT_BIG, "GAME OVER");
+        ui_drawTextInRectangle(renderer, screen, FONT_BIG, ILI9341_BLACK, "GAME OVER");
+
+        gameOver->wasRendered = true;
+    }
 }

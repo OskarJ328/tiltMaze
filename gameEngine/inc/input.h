@@ -6,7 +6,8 @@
 typedef enum{
     BUTTON_PAUSE
     ,BUTTON_RESUME
-    //,BUTTON_CONFIRM
+    ,BUTTON_CONFIRM
+    ,BUTTON_BACK
     ,BUTTON_UP
     ,BUTTON_DOWN
     ,BUTTON_LEFT
