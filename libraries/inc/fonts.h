@@ -6,7 +6,9 @@
 
 typedef enum{
     FONT_SMALL,
-    FONT_BIG
+    FONT_BIG,
+    FONT_GOTH,
+    FONT_PIXEL
 } FontID;
 
 typedef struct {
@@ -17,7 +19,7 @@ typedef struct {
     const uint8_t   lineSpacing;
 }font_t;
 
-extern font_t fonts[2];
+extern font_t fonts[4];
 
 
 #endif // __FONTS_H__
