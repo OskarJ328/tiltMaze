@@ -5,6 +5,8 @@
 #include "fonts.h"
 #include "renderer.h"
 #include "sprite.h"
+#include "tile.h"
+#include <stdint.h>
 
 typedef struct{
     FontID fontID;
@@ -15,15 +17,20 @@ typedef struct{
     rectangle_t rectangle;
 }buttonGraphic_t;
 
-typedef struct{
-    SpriteID frameID;
-    SpriteID centerID;
-}screenBackground_t;
+typedef struct {
+    FontID fontID;
+    color_t defaultColor;
+    color_t pointedColor;
+    SpriteID textFrameID;
+    rectangle_t rectangle;
 
-buttonGraphic_t ui_createButtonGraphic(FontID fontID, color_t fontColor, SpriteID backgroundID, SpriteID frameID, SpriteID pointerID, rectangle_t rectangle);
-void ui_drawButton(renderer_t *renderer, buttonGraphic_t buttonGraphic, const char *text);
-void ui_drawButtonPointer(renderer_t *renderer, buttonGraphic_t buttonGraphic);
-void ui_clearButtonPointer(renderer_t* renderer, buttonGraphic_t buttonGraphic, screenBackground_t screenBackground);
+    char text[32];
+}ButtonGraphic;
+
+void ui_createButtonGraphic(ButtonGraphic *buttonGraphic, FontID fontID, color_t defautlColor, color_t pointedColor, SpriteID textFrameID, vector2_t position);
+void ui_drawButton(renderer_t *renderer, ButtonGraphic *buttonGraphic, const char *text);
+void ui_pointAtButton(renderer_t *renderer, ButtonGraphic *buttonGraphic);
+void ui_unpointAtButton(renderer_t* renderer, ButtonGraphic *buttonGraphic);
 void ui_drawOuterFrame(renderer_t *renderer, rectangle_t rectangle, SpriteID id);
 void ui_drawTextInRectangle(renderer_t *renderer, rectangle_t rectangle, FontID id, color_t color, const char *text);
-void ui_drawScreenBackground(renderer_t *renderer, screenBackground_t screenBackground);
+void ui_drawScreenBackground(renderer_t *renderer, SpriteID *sprites, uint8_t spritesNumber, uint8_t *spritesThresholds, uint8_t thresholdsNumber);

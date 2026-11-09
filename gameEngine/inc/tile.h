@@ -3,8 +3,12 @@
 #include "sprite.h"
 
 typedef enum {
-    TILE_WALL,
-    TILE_FLOOR,
+    TILE_WALL_1,
+    TILE_WALL_2,
+    TILE_WALL_3,
+    TILE_FLOOR_1,
+    TILE_FLOOR_2,
+    TILE_FLOOR_3,
     TILE_HOLE,
     TILE_NULL
 }TileID;
@@ -23,4 +27,4 @@ typedef struct {
     uint8_t flag;
 }tile_t;
 
-extern tile_t tiles[5];
+extern tile_t tiles[10];

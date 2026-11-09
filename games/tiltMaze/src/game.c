@@ -1,18 +1,10 @@
 #include "game.h"
-#include "assetManager.h"
-#include "gameOver.h"
-#include "gameplay.h"
-#include "ili9341.h"
-#include "input.h"
-#include "map.h"
-#include "menu.h"
-#include "renderer.h"
-#include "sprite.h"
+
 
 void game_init(game_t *game, input_t *input, renderer_t *renderer, assetManager_t *assets){
     game->input = input;
     game->renderer = renderer;
-    game->mapID = MAP_FANTASY;
+    game->mapID = MAP_FANTASY_2;
     game->state = GAME_STATE_MENU;
 
     menu_init(&game->menu, input, assets);

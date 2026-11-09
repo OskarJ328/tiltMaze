@@ -1,11 +1,8 @@
 #pragma once
 
 #include "assetManager.h"
-#include "basicTypes.h"
 #include "input.h"
-#include "map.h"
 #include "renderer.h"
-#include "sprite.h"
 
 typedef struct {
     vector2_t position;

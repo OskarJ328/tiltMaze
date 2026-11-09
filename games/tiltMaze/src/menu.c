@@ -1,26 +1,17 @@
 #include "menu.h"
-#include "assetManager.h"
 #include "basicTypes.h"
-#include "button.h"
-#include "fonts.h"
-#include "ili9341.h"
-#include "input.h"
-#include "joystick.h"
-#include "renderer.h"
 #include "sprite.h"
 #include "ui.h"
-#include <assert.h>
-#include <stdbool.h>
 #include <stdint.h>
-#include <string.h>
+
 
 #define JOYSTICK_UP 80.0f
 #define JOYSTICK_DOWN -80.0f
 #define SPACE_BETWEEN_BUTTON_GRAPHICS_PXL 10
 
-static buttonGraphic_t newGame_buttonGraphic;
-static buttonGraphic_t settings_buttonGraphic;
-static buttonGraphic_t info_buttonGraphic;
+static ButtonGraphic newGame_buttonGraphic;
+static ButtonGraphic settings_buttonGraphic;
+static ButtonGraphic info_buttonGraphic;
 
 /*
 LETTER_NUMBER = NUMBER OF LETTERS FROM LONGEST BUTTON GRAPHIC
@@ -30,41 +21,28 @@ RECTANGLE_HEIGHT    = LETTER_HEIGHT * 2
 static void menu_createButtonGraphics(assetManager_t *assets, Size screenSize){
 
     FontID fontID = FONT_GOTH;
-    color_t fontColor = ILI9341_WHITE;
-    SpriteID frameID = SPRITE_WALL;
-    SpriteID backgroundID = SPRITE_FLOOR;
-    SpriteID pointerID = SPRITE_BALL;
+    color_t defaultColor = ILI9341_WHITE;
+    color_t pointedColor = ILI9341_RED;
+    SpriteID textFrameID = SPRITE_TEXT_FRAME;
 
-    const font_t *font = assetManager_getFont(assets, fontID);    
-    const sprite_t *frame = assetManager_getSprite(assets, frameID);
+    const sprite_t *textFrame = assetManager_getSprite(assets, textFrameID);
 
-    Size btnGrphs_size;
-    btnGrphs_size.width = (8 + 2) * font->width; //NEW GAME = 8 
-    btnGrphs_size.height = font->height * 2;
+    Size btnGrphs_size = textFrame->size;
     
     vector2_t newGame_pos;
-    newGame_pos.x = screenSize.width / 2 - ((btnGrphs_size.width + frame->size.width) / 2);
+    newGame_pos.x = screenSize.width / 2 - (btnGrphs_size.width / 2);
     newGame_pos.y = 48;
-
-    rectangle_t newGame_rectangle = {newGame_pos, btnGrphs_size};
-
-    newGame_buttonGraphic = ui_createButtonGraphic(fontID, ILI9341_WHITE, backgroundID, frameID, pointerID, newGame_rectangle);
+    ui_createButtonGraphic(&newGame_buttonGraphic, fontID, defaultColor, pointedColor, textFrameID, newGame_pos);
 
     vector2_t settings_pos;
     settings_pos.x = newGame_pos.x;
-    settings_pos.y = newGame_pos.y + btnGrphs_size.height + frame->size.height * 2 + SPACE_BETWEEN_BUTTON_GRAPHICS_PXL;
-
-    rectangle_t settings_rectangle = {settings_pos, btnGrphs_size};
-
-    settings_buttonGraphic = ui_createButtonGraphic(fontID, fontColor, backgroundID, frameID, pointerID, settings_rectangle);
+    settings_pos.y = newGame_pos.y + btnGrphs_size.height + SPACE_BETWEEN_BUTTON_GRAPHICS_PXL;
+    ui_createButtonGraphic(&settings_buttonGraphic, fontID, defaultColor, pointedColor, textFrameID, settings_pos);
 
     vector2_t info_pos;
     info_pos.x = settings_pos.x;
-    info_pos.y = settings_pos.y + btnGrphs_size.height + frame->size.height * 2 + SPACE_BETWEEN_BUTTON_GRAPHICS_PXL;
-
-    rectangle_t info_rectangle = {info_pos, btnGrphs_size};
-
-    info_buttonGraphic = ui_createButtonGraphic(fontID, fontColor, backgroundID, frameID, pointerID, info_rectangle);
+    info_pos.y = settings_pos.y + btnGrphs_size.height + SPACE_BETWEEN_BUTTON_GRAPHICS_PXL;
+    ui_createButtonGraphic(&info_buttonGraphic, fontID, defaultColor, pointedColor, textFrameID, info_pos);
 }
 
 void menu_init(menu_t *menu, input_t *input, assetManager_t *assets){
@@ -77,10 +55,6 @@ void menu_init(menu_t *menu, input_t *input, assetManager_t *assets){
     menu->window_wasRendered = false;
     menu->option_wasRendered = false;
     menu->buttonGraphics_wereCreated = false;
-
-    menu->background.centerID = SPRITE_FLOOR;
-    menu->background.frameID = SPRITE_WALL;
-
 }
 
 menuAction_t menu_update(menu_t *menu){
@@ -158,11 +132,12 @@ static void menu_renderMainWindow(menu_t *menu, renderer_t *renderer){
 
         menu->buttonGraphics_wereCreated = true;
     }
-
-    ui_drawScreenBackground(renderer, menu->background);
-    ui_drawButton(renderer, newGame_buttonGraphic, "New Game");
-    ui_drawButton(renderer, settings_buttonGraphic, "Settings");
-    ui_drawButton(renderer, info_buttonGraphic, "Info");
+    SpriteID sprites[7] = {SPRITE_FLOOR_1, SPRITE_FLOOR_2, SPRITE_FLOOR_3, SPRITE_WALL_1, SPRITE_WALL_2, SPRITE_WALL_3, SPRITE_HOLE};
+    uint8_t thresholds[7] = {20, 40, 60, 72, 84, 96, 100}; 
+    ui_drawScreenBackground(renderer, sprites, ARRAY_SIZE(sprites), thresholds, ARRAY_SIZE(thresholds));
+    ui_drawButton(renderer, &newGame_buttonGraphic, "New Game");
+    ui_drawButton(renderer, &settings_buttonGraphic, "Settings");
+    ui_drawButton(renderer, &info_buttonGraphic, "Info");
 
 }
 
@@ -193,21 +168,16 @@ void menu_render(menu_t *menu, renderer_t *renderer){
             menu->window_wasRendered = true;
         }
         if(!menu->option_wasRendered){
-            buttonGraphic_t chosenButtonGraphic;
             switch(menu->mainOption){
             case MENU_MAIN_NEW_GAME:
-                chosenButtonGraphic = newGame_buttonGraphic;
-                chosenButtonGraphic.fontColor = ILI9341_RED;
-                ui_drawButton(renderer, chosenButtonGraphic, "New Game");
-                ui_drawButton(renderer, info_buttonGraphic, "Info");
+                ui_unpointAtButton(renderer, &info_buttonGraphic);
+                ui_pointAtButton(renderer, &newGame_buttonGraphic);
                 //ui_clearButtonPointer(renderer, btnGrph_info);
                 //ui_drawButtonPointer(renderer, btnGrph_newGame);
                 break;
             case MENU_MAIN_INFO:
-                chosenButtonGraphic = info_buttonGraphic;
-                chosenButtonGraphic.fontColor = ILI9341_RED;
-                ui_drawButton(renderer, chosenButtonGraphic, "Info");
-                ui_drawButton(renderer, newGame_buttonGraphic, "New Game");
+                ui_unpointAtButton(renderer, &newGame_buttonGraphic);
+                ui_pointAtButton(renderer, &info_buttonGraphic);
                 //ui_clearButtonPointer(renderer, btnGrph_newGame);
                 //ui_drawButtonPointer(renderer, btnGrph_info);
                 break;

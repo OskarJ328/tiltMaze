@@ -5,6 +5,7 @@
 
 typedef enum {
     MAP_FANTASY,
+    MAP_FANTASY_2,
     MAP_SCI_FI,
     MAP_GOTH
 }MapID;

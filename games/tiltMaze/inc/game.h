@@ -1,13 +1,10 @@
 #pragma once
-#include "assetManager.h"
+
 #include "gameOver.h"
 #include "gameplay.h"
-#include "input.h"
-#include "map.h"
 #include "menu.h"
 #include "pauseMenu.h"
-#include "renderer.h"
-#include <stdint.h>
+
 
 
 

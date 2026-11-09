@@ -3,13 +3,19 @@
 
 
 typedef enum{
-    SPRITE_WALL,  
-    SPRITE_FLOOR,
+    SPRITE_WALL_1,
+    SPRITE_WALL_2,
+    SPRITE_WALL_3,  
+    SPRITE_FLOOR_1,
+    SPRITE_FLOOR_2,
+    SPRITE_FLOOR_3,
     SPRITE_HOLE,
 
     SPRITE_PLAYER,
     SPRITE_BALL,
-    SPRITE_GOAL
+    SPRITE_GOAL,
+
+    SPRITE_TEXT_FRAME
     
 } SpriteID;
 

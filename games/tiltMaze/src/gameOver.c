@@ -1,14 +1,5 @@
 #include "gameOver.h"
-#include "assetManager.h"
-#include "basicTypes.h"
-#include "button.h"
-#include "fonts.h"
-#include "ili9341.h"
-#include "input.h"
-#include "map.h"
-#include "renderer.h"
 #include "ui.h"
-#include <string.h>
 
 void gameOver_init(gameOver_t *gameOver, input_t *input, assetManager_t *assets, MapID mapID){
     gameOver->input = input;

@@ -31,9 +31,6 @@ typedef struct{
     bool buttonGraphics_wereCreated;
     bool window_wasRendered;
     bool option_wasRendered;
-
-
-    screenBackground_t background;
 }menu_t;
 
 

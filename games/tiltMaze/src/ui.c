@@ -1,15 +1,11 @@
+#include "assetManager.h"
+#include "basicTypes.h"
+#include "sprite.h"
+#include <stdint.h>
+#include <stdlib.h>
 #define POINTER_OFFSET_PXL 10
 
 #include "ui.h"
-#include "assetManager.h"
-#include "basicTypes.h"
-#include "fonts.h"
-#include "ili9341.h"
-#include "images.h"
-#include "renderer.h"
-#include "sprite.h"
-#include <assert.h>
-#include <stdint.h>
 #include <string.h>
 
 static void ui_drawSpriteColumn(renderer_t *renderer, vector2_t startingPosition, uint8_t spriteNumber, SpriteID id){
@@ -38,15 +34,12 @@ static void ui_drawSpriteRow(renderer_t *renderer, vector2_t startingPosition, u
     }
 }
 
-buttonGraphic_t ui_createButtonGraphic(FontID fontID, color_t fontColor, SpriteID backgroundID, SpriteID frameID, SpriteID pointerID, rectangle_t rectangle){
-    buttonGraphic_t btnGrph;
-    btnGrph.fontID      = fontID;
-    btnGrph.fontColor   = fontColor;
-    btnGrph.background  = backgroundID;
-    btnGrph.frame       = frameID;
-    btnGrph.pointer     = pointerID;
-    btnGrph.rectangle   = rectangle;
-    return btnGrph;
+void ui_createButtonGraphic(ButtonGraphic *buttonGraphic, FontID fontID, color_t defautlColor, color_t pointedColor, SpriteID textFrameID, vector2_t position){
+    buttonGraphic->fontID = fontID;
+    buttonGraphic->defaultColor = defautlColor;
+    buttonGraphic->pointedColor = pointedColor;
+    buttonGraphic->textFrameID = textFrameID;
+    buttonGraphic->rectangle.position = position;
 }
 
 void ui_drawOuterFrame(renderer_t *renderer, rectangle_t rectangle, SpriteID id){
@@ -128,35 +121,54 @@ static void ui_drawSpriteRectangle(renderer_t *renderer, rectangle_t rectangle, 
     }
 }
 
-void ui_drawButton(renderer_t *renderer, buttonGraphic_t buttonGraphic, const char *text){
-    ui_drawOuterFrame(renderer, buttonGraphic.rectangle, buttonGraphic.frame);
-    ui_drawSpriteRectangle(renderer, buttonGraphic.rectangle, buttonGraphic.background);
-    ui_drawTextInRectangle(renderer, buttonGraphic.rectangle, buttonGraphic.fontID, buttonGraphic.fontColor, text);
-}
-
-void ui_drawButtonPointer(renderer_t *renderer, buttonGraphic_t buttonGraphic){
-    vector2_t position;
-    position.x = buttonGraphic.rectangle.position.x - POINTER_OFFSET_PXL;
-    position.y = buttonGraphic.rectangle.position.y + buttonGraphic.rectangle.size.height / 2;
-    
-    renderer_drawSpriteWithAlphaMask(renderer, buttonGraphic.pointer, position);
-}
-
-void ui_clearButtonPointer(renderer_t *renderer, buttonGraphic_t buttonGraphic, screenBackground_t screenBackground){
-    vector2_t position;
-    //position.x = buttonGraphic.position    
-}
-
-void ui_drawScreenBackground(renderer_t *renderer, screenBackground_t screenBackground){
-    const sprite_t *frame = assetManager_getSprite(renderer->assets, screenBackground.frameID);
-    if(frame == NULL){
+void ui_drawButton(renderer_t *renderer, ButtonGraphic *buttonGraphic, const char *text){
+    const sprite_t *textFrame = assetManager_getSprite(renderer->assets, buttonGraphic->textFrameID);
+    if(textFrame == NULL){
         return;
     }
-    rectangle_t rectangle;
-    rectangle.size.width = renderer->ili9341->width - (frame->size.width * 2);
-    rectangle.size.height = renderer->ili9341->height - (frame->size.height * 2);
-    rectangle.position.x = frame->size.width;
-    rectangle.position.y = frame->size.height;
-    ui_drawOuterFrame(renderer, rectangle, screenBackground.frameID);
-    ui_drawSpriteRectangle(renderer, rectangle, screenBackground.centerID); 
+    
+    strcpy(buttonGraphic->text, text);
+    buttonGraphic->rectangle.size.width = textFrame->size.width;
+    buttonGraphic->rectangle.size.height = textFrame->size.height;
+    
+    renderer_drawSprite(renderer, buttonGraphic->textFrameID, buttonGraphic->rectangle.position);
+    ui_drawTextInRectangle(renderer, buttonGraphic->rectangle, buttonGraphic->fontID, buttonGraphic->defaultColor, text);
+}
+
+void ui_pointAtButton(renderer_t *renderer, ButtonGraphic *buttonGraphic){
+    ui_drawTextInRectangle(renderer, buttonGraphic->rectangle, buttonGraphic->fontID, buttonGraphic->pointedColor, buttonGraphic->text);
+}
+
+void ui_unpointAtButton(renderer_t *renderer, ButtonGraphic *buttonGraphic){
+    ui_drawTextInRectangle(renderer, buttonGraphic->rectangle, buttonGraphic->fontID, buttonGraphic->defaultColor, buttonGraphic->text);
+}
+
+void ui_drawScreenBackground(renderer_t *renderer, SpriteID *sprites, uint8_t spritesNumber, uint8_t *spritesThresholds, uint8_t thresholdsNumber){
+    if(spritesNumber != thresholdsNumber){
+        return;
+    }
+    const sprite_t *sprite = assetManager_getSprite(renderer->assets, sprites[0]);
+    Size screen_sprites;
+    screen_sprites.width = renderer->ili9341->width / sprite->size.width;
+    screen_sprites.height = renderer->ili9341->height / sprite->size.height;
+
+    for(uint8_t x = 0; x < screen_sprites.width; x++){
+        for(uint8_t y = 0; y < screen_sprites.height; y++){
+            vector2_t position;
+            position.x = x * sprite->size.width;
+            position.y = y * sprite->size.height;
+            
+            SpriteID id;
+            
+            uint8_t randomValue = rand() % 100;
+            for(uint8_t i = 0; i < spritesNumber; i++){
+                if(randomValue < spritesThresholds[i]){
+                    id = sprites[i];
+                    break;
+                }
+            }
+
+            renderer_drawSprite(renderer, id, position);
+        }
+    }
 }
